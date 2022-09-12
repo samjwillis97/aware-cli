@@ -1,8 +1,8 @@
 package utils
 
 import (
-    "os"
-    "fmt"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -14,7 +14,7 @@ func Success(msg string, args ...interface{}) {
 }
 
 func ShowLoading(msg string) *spinner.Spinner {
-    const refreshRate = 100 * time.Millisecond
+	const refreshRate = 100 * time.Millisecond
 
 	s := spinner.New(
 		spinner.CharSets[14],
@@ -36,4 +36,3 @@ func Failed(msg string, args ...interface{}) {
 	Fail(msg, args...)
 	os.Exit(1)
 }
-

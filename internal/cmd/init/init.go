@@ -15,7 +15,7 @@ type initParams struct {
 	server       string
 	organisation string
 	login        string
-    password string
+	password     string
 	authProvider string
 	force        bool
 }
@@ -64,7 +64,7 @@ func getFlags(flags *pflag.FlagSet) *initParams {
 	return &initParams{
 		server:       server,
 		login:        login,
-        password: password,
+		password:     password,
 		organisation: organisation,
 		authProvider: provider,
 		force:        force,
@@ -74,23 +74,23 @@ func getFlags(flags *pflag.FlagSet) *initParams {
 func initialize(cmd *cobra.Command, _ []string) {
 	params := getFlags(cmd.Flags())
 
-    c := config.NewAwareCLIConfigGenerator(
-        &config.AwareCLIConfig{
-            Server: params.server,
-            Organisation: params.organisation,
-            Login: params.login,
-            Password: params.password,
-            AuthProvider: params.authProvider,
-            Force: params.force,
-        },
-    )
+	c := config.NewAwareCLIConfigGenerator(
+		&config.AwareCLIConfig{
+			Server:       params.server,
+			Organisation: params.organisation,
+			Login:        params.login,
+			Password:     params.password,
+			AuthProvider: params.authProvider,
+			Force:        params.force,
+		},
+	)
 
-    file, err := c.Generate()
-    if err != nil {
-        fmt.Println()
-        utils.Failed("Unable to generate configuration: %s", err.Error())
-        os.Exit(1)
-    }
+	file, err := c.Generate()
+	if err != nil {
+		fmt.Println()
+		utils.Failed("Unable to generate configuration: %s", err.Error())
+		os.Exit(1)
+	}
 
 	utils.Success("Configuration generated: %s", file)
 }
