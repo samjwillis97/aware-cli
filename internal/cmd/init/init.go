@@ -15,6 +15,7 @@ type initParams struct {
 	server       string
 	organisation string
 	login        string
+    password string
 	authProvider string
 	force        bool
 }
@@ -33,6 +34,7 @@ func NewCmdInit() *cobra.Command {
 
 	cmd.Flags().String("server", "", "Link to the aware api")
 	cmd.Flags().String("login", "", "Aware login username or email")
+	cmd.Flags().String("password", "", "Aware login password")
 	cmd.Flags().String("organisation", "", "Your default organisation id")
 	cmd.Flags().String("provider", "", "Authentication provider to use")
 	cmd.Flags().Bool("force", false, "Forcefully override existing config if it exists")
@@ -47,6 +49,9 @@ func getFlags(flags *pflag.FlagSet) *initParams {
 	login, err := flags.GetString("login")
 	utils.ExitIfError(err)
 
+	password, err := flags.GetString("password")
+	utils.ExitIfError(err)
+
 	organisation, err := flags.GetString("organisation")
 	utils.ExitIfError(err)
 
@@ -59,6 +64,7 @@ func getFlags(flags *pflag.FlagSet) *initParams {
 	return &initParams{
 		server:       server,
 		login:        login,
+        password: password,
 		organisation: organisation,
 		authProvider: provider,
 		force:        force,
@@ -67,15 +73,17 @@ func getFlags(flags *pflag.FlagSet) *initParams {
 
 func initialize(cmd *cobra.Command, _ []string) {
 	params := getFlags(cmd.Flags())
-	fmt.Println(params)
 
-    c := &config.AwareCLIConfig{
-        Server: params.server,
-        Organisation: params.organisation,
-        Login: params.login,
-        AuthProvider: params.authProvider,
-        Force: params.force,
-    }
+    c := config.NewAwareCLIConfigGenerator(
+        &config.AwareCLIConfig{
+            Server: params.server,
+            Organisation: params.organisation,
+            Login: params.login,
+            Password: params.password,
+            AuthProvider: params.authProvider,
+            Force: params.force,
+        },
+    )
 
     file, err := c.Generate()
     if err != nil {
