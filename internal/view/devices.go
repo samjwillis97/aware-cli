@@ -8,7 +8,10 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"ampaware.com/cli/internal/utils"
 	"ampaware.com/cli/pkg/aware"
+	"ampaware.com/cli/pkg/tui/table"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 type DeviceDisplayFormat struct {
@@ -40,6 +43,13 @@ func (d *DeviceList) Render() error {
         d.FooterText = fmt.Sprintf("Showing %d of %d results for devices", len(data)-1, d.Total)
     }
 
+    p := tea.NewProgram(table.New(
+        table.WithTabulatedData(d.data()),
+        table.WithFocused(true),
+    ))
+    if err := p.Start(); err != nil {
+        utils.Failed("Error has occurred: %v", err)
+    }
     return nil
 }
 
