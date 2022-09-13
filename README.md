@@ -20,6 +20,7 @@ to reuse code.
 
 ### Examples
 
+- `aware init`
 - `aware config set api http://localhost:3000`
 - `aware config get api`
 - `aware login`

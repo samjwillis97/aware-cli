@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"ampaware.com/cli/internal/cmd/device"
 	initCmd "ampaware.com/cli/internal/cmd/init"
 	awareConfig "ampaware.com/cli/internal/config"
 )
@@ -31,7 +32,7 @@ func init() {
 
 			// Sets up the config directory, filename, and filetype
 			viper.AddConfigPath(configDir)
-			viper.SetConfigFile(awareConfig.ConfigFileName)
+			viper.SetConfigName(awareConfig.ConfigFileName)
 			viper.SetConfigType(awareConfig.ConfigFileType)
 		}
 
@@ -61,20 +62,20 @@ func NewCmdRoot() *cobra.Command {
 		},
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			// Children of this command will inherit and execute this
-
 			subCmd := cmd.Name()
 			if !cmdRequireToken(subCmd) {
 				// If a command doesn't require a token skip checking
 				return
 			}
 
-			awareConfig.CheckForToken()
-
 			configFile := viper.ConfigFileUsed()
 			if !awareConfig.Exists(configFile) {
 				// TODO Error -> Inform
 				fmt.Printf("Missing config file.")
 			}
+
+			awareConfig.CheckForToken()
+
 		},
 	}
 
@@ -103,6 +104,7 @@ func NewCmdRoot() *cobra.Command {
 func addChildCommands(cmd *cobra.Command) {
 	cmd.AddCommand(
 		initCmd.NewCmdInit(),
+		device.NewCmdDevice(),
 	)
 }
 

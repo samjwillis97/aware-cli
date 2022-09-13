@@ -66,7 +66,15 @@ func GetConfigDirectory() (string, error) {
 
 func CheckForToken() {
     // TODO FIX THIS
+    if viper.GetString("token") != "" {
+        return
+    }
+
 	if os.Getenv("AWARE_JWT") != "" {
+		return
+	}
+
+	if os.Getenv("AWARE_TOKEN") != "" {
 		return
 	}
 
@@ -90,7 +98,8 @@ func (c *AwareCLIConfigGenerator) Generate() (string, error) {
 		return "", err
 	}
 
-	// TODO: Handle Force?
+	// TODO: Handle Force, Warn if there is already a filled out confiuration?
+
 	if err := c.configureServer(); err != nil {
 		return "", err
 	}

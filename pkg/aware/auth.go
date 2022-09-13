@@ -53,6 +53,8 @@ func (c *Client) GetAllAuthProviders() ([]*AuthProvider, error) {
 }
 
 func (c *Client) Login(login, password, providerType string) (*AuthResponse, error) {
+    // TODO: Maybe need to change the providerType to feed in the full
+    // AuthProvider so we have the URL etc, for Auth0
 	data := struct {
 		Username string `json:"username"`
 		Password string `json:"password"`

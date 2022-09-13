@@ -87,7 +87,7 @@ func (c *Client) request(ctx context.Context, method, endpoint string, body []by
 
 func dump(req *http.Request, res *http.Response) {
 	reqDump, _ := httputil.DumpRequest(req, true)
-	respDump, _ := httputil.DumpResponse(res, false)
+	respDump, _ := httputil.DumpResponse(res, true)
 
 	prettyPrintDump("Request Details", reqDump)
 	prettyPrintDump("Response Details", respDump)
