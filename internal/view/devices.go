@@ -40,10 +40,15 @@ func (d *DeviceList) Render() error {
 
     data := d.data()
     if d.FooterText == "" {
-        d.FooterText = fmt.Sprintf("Showing %d of %d results for devices", len(data)-1, d.Total)
+        d.FooterText = fmt.Sprintf("Showing %d devices", d.Total)
     }
 
-    p := tea.NewProgram(table.New(data))
+    p := tea.NewProgram(table.New(
+            table.WithData(data),
+            table.WithAutoWidth(true),
+            table.WithFullscreen(true),
+            table.WithFooterText(d.FooterText),
+            table.WithFocused(true)))
     if err := p.Start(); err != nil {
         utils.Failed("Error has occurred: %v", err)
     }
