@@ -43,10 +43,7 @@ func (d *DeviceList) Render() error {
         d.FooterText = fmt.Sprintf("Showing %d of %d results for devices", len(data)-1, d.Total)
     }
 
-    p := tea.NewProgram(table.New(
-        table.WithTabulatedData(d.data()),
-        table.WithFocused(true),
-    ))
+    p := tea.NewProgram(table.New(data))
     if err := p.Start(); err != nil {
         utils.Failed("Error has occurred: %v", err)
     }
