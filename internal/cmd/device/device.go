@@ -2,6 +2,7 @@ package device
 
 import (
 	"ampaware.com/cli/internal/cmd/device/list"
+	"ampaware.com/cli/internal/cmd/device/telemetry"
 	"github.com/spf13/cobra"
 )
 
@@ -15,10 +16,23 @@ func NewCmdDevice() *cobra.Command {
         RunE: device,
     }
 
+    // TODO: Create
+    // TODO: Delete -> Are You Sure?
+    // TODO: Edit
+    // TODO: View
+    // TODO: State?
+    // TODO: Telemetry ->
+    //  - Watch
+    //  - Generate
+    // TODO: Parameter, Telemetry
+    //  - Watch
+    //  - Generate
+
     lc := list.NewCmdList()
 
     cmd.AddCommand(
         lc,
+        telemetry.NewCmdDeviceTelemetry(),
     )
 
     list.SetFlags(lc)

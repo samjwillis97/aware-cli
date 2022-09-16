@@ -150,7 +150,6 @@ func (DeviceList) assignColumns(columns []string, device *aware.Device) []string
 }
 
 func ValidDeviceColumns() []string {
-    // TODO: Finish This
     return []string{
         fieldUID,
         fieldDisplayName,

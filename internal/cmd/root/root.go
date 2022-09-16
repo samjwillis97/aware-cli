@@ -10,6 +10,7 @@ import (
 	"ampaware.com/cli/internal/cmd/device"
 	initCmd "ampaware.com/cli/internal/cmd/init"
 	awareConfig "ampaware.com/cli/internal/config"
+	"ampaware.com/cli/internal/utils"
 )
 
 var (
@@ -26,8 +27,8 @@ func init() {
 			// Read the config from the default directory
 			configDir, err := awareConfig.GetConfigDirectory()
 			if err != nil {
-				// TODO Failed
-				fmt.Printf("Error getting config dir: %v", err)
+                utils.Failed("Error Finding configuration directory: %v", err)
+                return
 			}
 
 			// Sets up the config directory, filename, and filetype
@@ -45,7 +46,6 @@ func init() {
 
 		// Load the config file from disk
 		if err := viper.ReadInConfig(); err == nil && debug {
-			// TODO Debug
 			fmt.Printf("Using config file: %s\n", viper.ConfigFileUsed())
 		}
 	})
@@ -70,8 +70,7 @@ func NewCmdRoot() *cobra.Command {
 
 			configFile := viper.ConfigFileUsed()
 			if !awareConfig.Exists(configFile) {
-				// TODO Error -> Inform
-				fmt.Printf("Missing config file.")
+                utils.Failed("Missing configuration file.\nRun 'aware init' to configure the tool.")
 			}
 
 			awareConfig.CheckForToken()
@@ -81,8 +80,7 @@ func NewCmdRoot() *cobra.Command {
 
 	configDir, err := awareConfig.GetConfigDirectory()
 	if err != nil {
-		// TODO Failed
-		fmt.Printf("Error getting config dir: %v", err)
+		utils.Failed("Error getting config dir: %v", err)
 	}
 
 	// Persistent flags are available to every child command of this command

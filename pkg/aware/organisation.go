@@ -38,8 +38,7 @@ func (c *Client) GetAllOrganisations() ([]*Organisation, error) {
 	defer func() { _ = res.Body.Close() }()
 
 	if res.StatusCode != http.StatusOK {
-		// TODO: Pretty Print
-		return nil, err
+        return nil, formatUnexpectedResponse(res)
 	}
 
 	var out []*Organisation

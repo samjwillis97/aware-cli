@@ -83,8 +83,7 @@ func (c *Client) Login(login, password, providerType string) (*AuthResponse, err
 	defer func() { _ = res.Body.Close() }()
 
 	if res.StatusCode != http.StatusOK {
-		// TODO: Pretty Print
-		return nil, err
+        return nil, formatUnexpectedResponse(res)
 	}
 
 	var out *AuthResponse

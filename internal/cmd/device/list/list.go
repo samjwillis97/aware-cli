@@ -77,6 +77,6 @@ func loadList(cmd *cobra.Command) {
 
 func SetFlags(cmd *cobra.Command) {
     cmd.Flags().Bool("plain", false, "Display output in plain mode")
-    cmd.Flags().Bool("no-truncate", false, "Show all avail;able columns in plain mode. Works only with --plain")
+    cmd.Flags().Bool("no-truncate", false, "Show all available columns in plain mode. Works only with --plain")
     cmd.Flags().Bool("no-headers", false, "Don't display headers in plain mode. Works only with --plain")
 }

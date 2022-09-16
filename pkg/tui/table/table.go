@@ -144,6 +144,15 @@ func (m *Model) SetStyles(s Styles) {
 
 // New creates a new model for the table widget.
 func New(opts ...Option) Model {
+    // TODO: Add a nice Header (Optional)
+    // TODO: Add an open/enter/execute function (Optional)
+    // TODO: Add a delete function (Optional)
+    // TODO: Add a refresh function (Optional)
+    // TODO: Add a filter (Optional)
+    // TODO: Add an option for columns to overflow
+    // TODO: Show help
+    // TODO: Value to Clipboard
+    // TODO: Method to Append for Telemetry Generation!
 	m := Model{
 		cursor:   0,
 		viewport: viewport.New(0, 20),
@@ -313,6 +322,8 @@ func (m *Model) MoveUp(n int) {
 
 func (m *Model) UpdateRowWidths() {
     if (m.autowidth && m.viewport.Width  > 0) {
+        // The padding may be what is causing this to be out of whack
+        // TODO Address
         availableWidth := m.viewport.Width - 10
         evenWidth := m.viewport.Width / len(m.cols)
         minWidth := 10

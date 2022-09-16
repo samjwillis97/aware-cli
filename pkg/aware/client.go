@@ -36,6 +36,15 @@ var (
 	ErrEmptyResult = fmt.Errorf("aware: empty response from server")
 )
 
+type ErrUnexpectedResponse struct {
+    Status string
+    StatusCode int
+}
+
+func (e *ErrUnexpectedResponse) Error() string {
+    return e.Status
+}
+
 func NewClient(c Config) *Client {
 	client := Client{
 		server: strings.TrimSuffix(c.Server, "/"),
@@ -99,4 +108,11 @@ func prettyPrintDump(heading string, data []byte) {
 	fmt.Printf("\n\n%s", strings.ToUpper(heading))
 	fmt.Printf("\n%s\n\n", strings.Repeat("-", separatorWidth))
 	fmt.Print(string(data))
+}
+
+func formatUnexpectedResponse(res *http.Response) *ErrUnexpectedResponse {
+    return &ErrUnexpectedResponse{
+        Status: res.Status,
+        StatusCode: res.StatusCode,
+    }
 }
