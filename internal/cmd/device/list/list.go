@@ -29,19 +29,8 @@ func loadList(cmd *cobra.Command) {
     devices, total, err := func() ([]*aware.Device, int, error) {
         s := utils.ShowLoading("Fetching Devices...")
         defer s.Stop()
-    
-        client := aware.NewClient(aware.Config{
-            Server:   viper.GetString("server"),
-            Token: viper.GetString("token"),
-            Insecure: true,
-            Debug:    viper.GetBool("debug"),
-        })
-
-        resp, err := client.GetAllDevices(aware.GetAllDevicesOptions{}); if err != nil {
-            return nil, 0, err
-        } else {
-            return resp, len(resp), nil
-        }
+        resp, err := loadDevices()
+        return resp, len(resp), err
     }()
     utils.ExitIfError(err)
 
@@ -61,6 +50,9 @@ func loadList(cmd *cobra.Command) {
     noTruncate, err := cmd.Flags().GetBool("no-truncate")
     utils.ExitIfError(err)
 
+    // receiving := make(chan table.TransmitMessage)
+    // transmit := make(chan table.ReceiveMessage)
+
     v := view.DeviceList{
         Total: total,
         Server: viper.GetString("server"),
@@ -70,9 +62,47 @@ func loadList(cmd *cobra.Command) {
             NoHeaders: noHeaders,
             NoTruncate: noTruncate,
         },
+        Refresh: loadDevices,
+        // Transmit: receiving,
+        // Receive: transmit,
     }
 
+    // Maybe move this to the view layer
+    // Just feed in the required functions?
+    // Could use the With.. Format or just as straight functions
+
+    // Yeah this needs to be done on the view, to get the correct columns etc.
+    // go func() {
+    //     for {
+    //         switch <-receiving {
+    //         case table.RefreshPressed:
+    //             devices, err := loadDevices()
+
+    //             utils.ExitIfError(err)
+    //             v.Data = devices
+    //             transmit <- table.RefreshCompleted
+    //         case table.Exit:
+    //             break
+    //         }
+    //     }
+    // }()
+
     utils.ExitIfError(v.Render())
+}
+
+func loadDevices() ([]*aware.Device, error) {
+    client := aware.NewClient(aware.Config{
+        Server:   viper.GetString("server"),
+        Token: viper.GetString("token"),
+        Insecure: true,
+        Debug:    viper.GetBool("debug"),
+    })
+
+    resp, err := client.GetAllDevices(aware.GetAllDevicesOptions{}); if err != nil {
+        return nil, err
+    } else {
+        return resp, nil
+    }
 }
 
 func SetFlags(cmd *cobra.Command) {

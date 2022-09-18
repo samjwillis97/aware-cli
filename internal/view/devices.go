@@ -1,7 +1,6 @@
 package view
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"strconv"
@@ -26,7 +25,7 @@ type DeviceList struct {
     Server string
     Data []*aware.Device
     Display DeviceDisplayFormat
-    FooterText string
+    Refresh func() ([]*aware.Device, error)
     // Refresh Function for TUI
     // See the pkgs/tuis
 }
@@ -38,21 +37,43 @@ func (d *DeviceList) Render() error {
         return d.renderPlain(w)
     }
 
-    data := d.data()
-    if d.FooterText == "" {
-        d.FooterText = fmt.Sprintf("Showing %d devices", d.Total)
-    }
+    cols, rows := d.getTableFormattedData()
 
-    p := tea.NewProgram(table.New(
-            table.WithData(data),
+    t := table.New(
+            table.WithColumns(cols),
+            table.WithRows(rows),
             table.WithAutoWidth(true),
             table.WithFullscreen(true),
-            table.WithFooterText(d.FooterText),
-            table.WithFocused(true)))
+            table.WithRefresh(d.getTableFormattedData),
+            table.WithFocused(true))
+
+    p := tea.NewProgram(t)
+
     if err := p.Start(); err != nil {
         utils.Failed("Error has occurred: %v", err)
     }
     return nil
+}
+
+func (d *DeviceList) getTableFormattedData() ([]table.Column, []table.Row) {
+    devices, err := d.Refresh()
+    utils.ExitIfError(err)
+    d.Data = devices
+    data := d.data()
+
+    var cols []table.Column
+    var rows []table.Row
+    for i, row := range data {
+        if i == 0 {
+            for _, col := range row {
+                cols = append(cols, table.Column{Title: col, Width: 10})
+            }
+        } else {
+            rows = append(rows, row)
+        }
+    }
+
+    return cols, rows
 }
 
 func (d *DeviceList) renderPlain(w io.Writer) error {

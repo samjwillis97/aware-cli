@@ -55,24 +55,6 @@ func WithHelp() Option {
     }
 }
 
-func WithData(data [][]string) Option {
-    return func(m *Model) {
-        var cols []Column
-        var rows []Row
-        for i, row := range data {
-            if i == 0 {
-                for _, col := range row {
-                    cols = append(cols, Column{Title: col, Width: 10})
-                }
-            } else {
-                rows = append(rows, row)
-            }
-        }
-        m.cols = cols
-        m.rows = rows
-    }
-}
-
 func WithFullscreen(fullscreen bool) Option {
     return func(m *Model) {
         m.fullscreen = fullscreen
@@ -86,9 +68,9 @@ func WithAutoWidth(autowidth bool) Option {
     }
 }
 
-func WithFooterText(text string) Option {
-    return func(m *Model) {
-        m.footerText = text
+func WithRefresh(fn func() ([]Column, []Row)) Option {
+    return func (m *Model) {
+        m.refreshFunc = fn
     }
 }
 

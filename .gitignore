@@ -22,3 +22,5 @@ go.work
 
 dist/
 .idea/
+
+debug.log

@@ -3,6 +3,7 @@ package table
 // https://github.com/charmbracelet/bubbles/blob/master/table/table.go
 // See above for example
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -23,7 +24,7 @@ type Model struct {
 	styles Styles
     fullscreen bool
     autowidth bool
-    footerText string
+    refreshFunc func() ([]Column, []Row)
 
 	viewport viewport.Model
 }
@@ -51,6 +52,7 @@ type KeyMap struct {
     ToggleFocus  key.Binding
     Exit         key.Binding
     Execute      key.Binding
+    Refresh      key.Binding
 }
 
 // Styles contains style definitions for this list component. By default, these
@@ -115,6 +117,10 @@ func DefaultKeyMap() KeyMap {
             key.WithKeys("enter"),
             key.WithHelp("enter", "open item"),
         ),
+        Refresh: key.NewBinding(
+            key.WithKeys("r", "R"),
+            key.WithHelp("r", "refresh"),
+        ),
 	}
 }
 
@@ -153,6 +159,8 @@ func New(opts ...Option) Model {
     // TODO: Show help
     // TODO: Value to Clipboard
     // TODO: Method to Append for Telemetry Generation!
+
+    // Maybe use channels for comms
 	m := Model{
 		cursor:   0,
 		viewport: viewport.New(0, 20),
@@ -214,6 +222,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				m.Focus()
 			}
+        case key.Matches(msg, m.KeyMap.Refresh):
+            m.Refresh() // Channel Might work, need to make sure states are set correctly though
         case key.Matches(msg, m.KeyMap.Exit):
 			return m, tea.Quit
         case key.Matches(msg, m.KeyMap.Execute):
@@ -252,6 +262,15 @@ func (m Model) View() string {
 // UpdateViewport updates the list content based on the previously defined
 // columns and rows.
 func (m *Model) UpdateViewport() {
+    // TODO: Fix Update Data isn't working
+    // renderedRows is turning the correct rows
+    // with the new data
+    // but it isn't being rendered
+
+
+    // Correct number of rows returned after the NewData
+    // But then the original number returned next update..
+
     m.UpdateRowWidths()
 
 	renderedRows := make([]string, 0, len(m.rows))
@@ -274,6 +293,15 @@ func (m Model) SelectedRow() Row {
 func (m *Model) SetRows(r []Row) {
 	m.rows = r
 	m.UpdateViewport()
+}
+
+func (m *Model) SetRowsFromData(d [][]string) {
+    var rows []Row
+    for _, row := range d {
+        rows = append(rows, row)
+    }
+    m.rows = rows
+    m.UpdateViewport()
 }
 
 // SetWidth sets the width of the viewport of the table.
@@ -318,6 +346,12 @@ func (m *Model) MoveUp(n int) {
 	if m.cursor < m.viewport.YOffset {
 		m.viewport.SetYOffset(m.cursor)
 	}
+}
+
+func (m *Model) Refresh() {
+    m.cols, m.rows = m.refreshFunc()
+    m.UpdateRowWidths()
+    m.UpdateViewport()
 }
 
 func (m *Model) UpdateRowWidths() {
@@ -451,7 +485,7 @@ func (m Model) headersView() string {
 }
 
 func (m Model) footersView() string {
-	return m.footerText
+    return fmt.Sprintf("Showing %d entries", len(m.rows))
 }
 
 func (m *Model) renderRow(rowID int) string {
