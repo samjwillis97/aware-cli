@@ -1,20 +1,51 @@
 # AWARE Helpers
 
-This could be a nice CLI/TUI to do simple tasks like consistently generating telemetry data for testing
-or stress testing, this will be written in Typescript, to take advantage of current knowledge and the ability
-to reuse code.
+This could be a nice CLI/TUI to do simple tasks like consistently generating telemetry data for testing.
+
+## How To:
+
+
+### Run
+
+`go run cmd/aware/main.go`
+
+
+### Build
+
+Current System:
+
+`go build -o dist/aware ./cmd/aware/main.go`
+
+
+Other Architecture:
+
+`env GOOS=windows GOARCH=amd64 go build -o dist/aware.exe ./cmd/aware/main.go`
+
+
+### Format
+
+Requires gofump: `go install mvdan.cc/gofumpt@latest`
+
+`gofumpt -l -w .`
+
+
+### Lint
+
+Requires golangci-lint, install [here](https://golangci-lint.run/usage/install/)
+
+`golangci-lint run -v`
+
 
 ## Insipration
 
 - Bitwarden CLI (https://github.com/bitwarden/clients/tree/master/apps/cli)
 - Jira CLI (https://github.com/ankitpokhrel/jira-cli)
 
-## Potential Libraries
+## Core Libraries
 
-- commander.js
-- inquirer
-- chalk
-
+- bubbletea
+- viper
+- cobra
 
 ## Implementation Thoughts
 
