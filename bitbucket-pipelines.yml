@@ -11,4 +11,4 @@ pipelines:
         name: Build
         script:
           # Build compiles the packages
-          - go build src/cmd/*
+          - go build cmd/aware/main.go
