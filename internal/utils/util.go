@@ -7,6 +7,7 @@ import (
 	"ampaware.com/cli/pkg/aware"
 )
 
+// ExitIfError will print the error and exit if one is present.
 func ExitIfError(err error) {
 	if err == nil {
 		return

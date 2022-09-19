@@ -1,5 +1,6 @@
 package aware
 
+// Entity is the aware model an entity.
 type Entity struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
@@ -23,7 +24,8 @@ type Entity struct {
 	// IdentityHistory
 }
 
-// TODO: Need to actually test this with more than one parent.
+// GetParentHierachyName returns a string of the full entity hierachy path.
+// i.e. AGL Conveyor Motor Sensor instead of just Sensor.
 func (e *Entity) GetParentHierachyName() string {
 	if e.ParentEntity == nil {
 		return e.Name

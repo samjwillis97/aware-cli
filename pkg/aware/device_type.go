@@ -102,8 +102,8 @@ func (c *Client) GetDeviceTypeByID(id string) (*DeviceType, error) {
 	return out, nil
 }
 
-//nolint:gocyclo // Complexity is required to generate more realistic random values
 // GetRandomValue generates a random value for the parameter.
+// nolint:gocyclo // Complexity is required to generate more realistic random values
 func (p *DeviceTypeParameter) GetRandomValue() interface{} {
 	// Copied staight from Jez's LinqPad
 	// FIXME: Doesn't seem to be respecting these

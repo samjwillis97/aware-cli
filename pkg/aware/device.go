@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// Device is the aware model of a device.
 type Device struct {
 	ID           string     `json:"id"`
 	DeviceType   DeviceType `json:"deviceType"`
@@ -25,14 +26,16 @@ type Device struct {
 	State       interface{} `json:"state"`
 }
 
+// GetAllDevicesOptions are the available options for the GetAllDevices query.
 type GetAllDevicesOptions struct {
 	IncludeInactive     bool
-	EntityId            string
-	OrganisationId      string
+	EntityID            string
+	OrganisationID      string
 	DeviceTypeKind      string
 	IncludeLatestValues bool
 }
 
+// GetAllDevices gets all the available devices for a user with the given options.
 func (c *Client) GetAllDevices(opts GetAllDevicesOptions) ([]*Device, error) {
 	queryString := ""
 
@@ -46,17 +49,17 @@ func (c *Client) GetAllDevices(opts GetAllDevicesOptions) ([]*Device, error) {
 		}
 		queryString += fmt.Sprintf("includeInactive=%v", opts.IncludeInactive)
 	}
-	if opts.EntityId != "" {
+	if opts.EntityID != "" {
 		if queryString != "" {
 			queryString += "&"
 		}
-		queryString += fmt.Sprintf("entityId=%s", opts.EntityId)
+		queryString += fmt.Sprintf("entityId=%s", opts.EntityID)
 	}
-	if opts.OrganisationId != "" {
+	if opts.OrganisationID != "" {
 		if queryString != "" {
 			queryString += "&"
 		}
-		queryString += fmt.Sprintf("organisationId=%s", opts.OrganisationId)
+		queryString += fmt.Sprintf("organisationId=%s", opts.OrganisationID)
 	}
 	if opts.IncludeLatestValues {
 		if queryString != "" {
@@ -94,6 +97,7 @@ func (c *Client) GetAllDevices(opts GetAllDevicesOptions) ([]*Device, error) {
 	return out, nil
 }
 
+// GetDeviceByID attempts to retrieve a device with the given id.
 func (c *Client) GetDeviceByID(id string) (*Device, error) {
 	url := c.server + "/v1/devices/" + id
 

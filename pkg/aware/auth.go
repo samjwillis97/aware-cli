@@ -1,3 +1,4 @@
+// Package aware contains all the API calls for interacting with the aware backend.
 package aware
 
 import (
@@ -6,6 +7,7 @@ import (
 	"net/http"
 )
 
+// AuthProvider is the aware model of an auth provider.
 type AuthProvider struct {
 	AuthType         string      `json:"type"`
 	Label            string      `json:"label"`
@@ -14,10 +16,11 @@ type AuthProvider struct {
 	CanResetPassword bool        `json:"canResetPassword"`
 	IsHidden         bool        `json:"isHidden"`
 	UseForm          bool        `json:"useForm"`
-	Url              string      `json:"url"`
+	URL              string      `json:"url"`
 	Data             interface{} `json:"data"`
 }
 
+// AuthResponse is the aware response when authenticating.
 type AuthResponse struct {
 	ID          string `json:"id"`
 	AccessToken string `json:"access_token"`
@@ -27,6 +30,7 @@ type AuthResponse struct {
 	TokenType   string `json:"token_type"`
 }
 
+// GetAllAuthProviders gets all available auth providers from aware.
 func (c *Client) GetAllAuthProviders() ([]*AuthProvider, error) {
 	res, err := c.request(context.Background(), http.MethodGet, c.server+"/v1/auth/providers", nil, nil)
 	if err != nil {
@@ -52,9 +56,8 @@ func (c *Client) GetAllAuthProviders() ([]*AuthProvider, error) {
 	return out, nil
 }
 
+// Login attempts to login to aware and get an authentication token.
 func (c *Client) Login(login, password, providerType string) (*AuthResponse, error) {
-	// TODO: Maybe need to change the providerType to feed in the full
-	// AuthProvider so we have the URL etc, for Auth0
 	data := struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
