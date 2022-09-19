@@ -1,3 +1,4 @@
+// Package device contains the root command for all device commands.
 package device
 
 import (
@@ -6,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewCmdDevice is the root command for device.
 func NewCmdDevice() *cobra.Command {
 	cmd := cobra.Command{
 		Use:         "device",
@@ -23,7 +25,6 @@ func NewCmdDevice() *cobra.Command {
 	// TODO: State?
 	// TODO: Telemetry ->
 	//  - Watch
-	//  - Generate
 	// TODO: Parameter, Telemetry
 	//  - Watch
 	//  - Generate

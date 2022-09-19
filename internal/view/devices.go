@@ -1,3 +1,4 @@
+// Package view contains all the views for the CLI.
 package view
 
 import (
@@ -13,6 +14,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// DeviceDisplayFormat is a device display type.
 type DeviceDisplayFormat struct {
 	Plain      bool
 	NoHeaders  bool
@@ -20,6 +22,7 @@ type DeviceDisplayFormat struct {
 	NoTruncate bool
 }
 
+// DeviceList is a list view for devices.
 type DeviceList struct {
 	Total   int
 	Server  string
@@ -30,6 +33,7 @@ type DeviceList struct {
 	// See the pkgs/tuis
 }
 
+// Render renders the view with the given settings and options.
 func (d *DeviceList) Render() error {
 	if d.Display.Plain {
 		w := tabwriter.NewWriter(os.Stdout, 0, tabWidth, 1, '\t', 0)
@@ -81,7 +85,7 @@ func (d *DeviceList) renderPlain(w io.Writer) error {
 
 func (d *DeviceList) header() []string {
 	if len(d.Display.Columns) == 0 {
-		validColumns := ValidDeviceColumns()
+		validColumns := validDeviceColumns()
 		if d.Display.NoTruncate || !d.Display.Plain {
 			return validColumns
 		}
@@ -125,7 +129,7 @@ func (d *DeviceList) data() [][]string {
 	}
 
 	if len(headers) == 0 {
-		headers = ValidDeviceColumns()
+		headers = validDeviceColumns()
 	}
 
 	for _, device := range d.Data {
@@ -136,7 +140,7 @@ func (d *DeviceList) data() [][]string {
 }
 
 func (d *DeviceList) validColumnsSet() map[string]struct{} {
-	columns := ValidDeviceColumns()
+	columns := validDeviceColumns()
 	out := make(map[string]struct{}, len(columns))
 
 	for _, c := range columns {
@@ -169,7 +173,7 @@ func (DeviceList) assignColumns(columns []string, device *aware.Device) []string
 	return bucket
 }
 
-func ValidDeviceColumns() []string {
+func validDeviceColumns() []string {
 	return []string{
 		fieldUID,
 		fieldDisplayName,

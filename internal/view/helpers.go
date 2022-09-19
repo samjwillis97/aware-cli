@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io"
 	"text/tabwriter"
-
-	"github.com/charmbracelet/glamour"
 )
 
 const (
@@ -31,11 +29,4 @@ func renderPlain(w io.Writer, data [][]string) error {
 		return w.(*tabwriter.Writer).Flush()
 	}
 	return nil
-}
-
-func MDRenderer() (*glamour.TermRenderer, error) {
-	return glamour.NewTermRenderer(
-		glamour.WithEnvironmentConfig(),
-		glamour.WithWordWrap(wordWrap),
-	)
 }

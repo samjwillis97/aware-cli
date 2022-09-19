@@ -1,3 +1,4 @@
+// Package config contains all required methods to get, parse, and generate a config.
 package config
 
 import (
@@ -15,10 +16,13 @@ import (
 )
 
 const (
+	// ConfigFileName is the name of the config file to look for.
 	ConfigFileName = "aware_config"
+	// ConfigFileType defines the format of the config file.
 	ConfigFileType = "yaml"
 )
 
+// AwareCLIConfig is the required configuration fields.
 type AwareCLIConfig struct {
 	Server       string
 	Organisation string
@@ -29,6 +33,7 @@ type AwareCLIConfig struct {
 	Force        bool
 }
 
+// AwareCLIConfigGenerator is a config generator.
 type AwareCLIConfigGenerator struct {
 	userCfg *AwareCLIConfig
 	value   struct {
@@ -42,6 +47,7 @@ type AwareCLIConfigGenerator struct {
 	awareClient *aware.Client
 }
 
+// Exists checks whether a file exists or not.
 func Exists(file string) bool {
 	if file == "" {
 		return false
@@ -52,6 +58,7 @@ func Exists(file string) bool {
 	return true
 }
 
+// GetConfigDirectory returns the directory where the configuration is expected to be.
 func GetConfigDirectory() (string, error) {
 	home := os.Getenv("XDG_CONFIG_HOME")
 	if home != "" {
@@ -64,6 +71,7 @@ func GetConfigDirectory() (string, error) {
 	return path.Join(home, ".config", "aware"), nil
 }
 
+// CheckForToken checks to see if a JWT token has been defined in either the config or environment.
 func CheckForToken() {
 	if viper.GetString("token") != "" {
 		return
@@ -86,6 +94,7 @@ func CheckForToken() {
 	os.Exit(1)
 }
 
+// NewAwareCLIConfigGenerator returns a new config generator.
 func NewAwareCLIConfigGenerator(cfg *AwareCLIConfig) *AwareCLIConfigGenerator {
 	gen := AwareCLIConfigGenerator{
 		userCfg: cfg,
@@ -94,6 +103,7 @@ func NewAwareCLIConfigGenerator(cfg *AwareCLIConfig) *AwareCLIConfigGenerator {
 	return &gen
 }
 
+// Generate begins the process of generating a configuration.
 func (c *AwareCLIConfigGenerator) Generate() (string, error) {
 	cfgDir, err := GetConfigDirectory()
 	if err != nil {
@@ -210,13 +220,14 @@ func (c *AwareCLIConfigGenerator) configureAuthProvider() error {
 		var providerTypes []string
 		var providerLabels []string
 
-		if ret, err := c.getAuthProviders(c.value.server); err != nil {
+		providers, err := c.getAuthProviders(c.value.server)
+		if err != nil {
 			return err
-		} else {
-			for _, val := range ret {
-				providerTypes = append(providerTypes, val.AuthType)
-				providerLabels = append(providerLabels, val.Label)
-			}
+		}
+
+		for _, val := range providers {
+			providerTypes = append(providerTypes, val.AuthType)
+			providerLabels = append(providerLabels, val.Label)
 		}
 
 		if c.userCfg.AuthProvider == "" {
@@ -297,16 +308,14 @@ func (c *AwareCLIConfigGenerator) configureLogin() error {
 			c.value.password = ans.Password
 		}
 
-		if ret, err := c.getLoginToken(c.value.server, c.value.login, c.value.password, c.value.authProvider); err != nil {
+		token, err := c.getLoginToken(c.value.server, c.value.login, c.value.password, c.value.authProvider)
+		if err != nil {
 			return err
-		} else {
-			c.value.token = ret
-			return nil
 		}
-	} else {
-		// TODO: Validate Token
-		fmt.Println("FIXME: Validate Token")
+		c.value.token = token
+		return nil
 	}
+	fmt.Println("FIXME: Validate Token")
 	return nil
 }
 
@@ -314,13 +323,15 @@ func (c *AwareCLIConfigGenerator) configureOrganisation() error {
 	if c.userCfg.Organisation == "" {
 		var organisationLabels []string
 		var organisationIDs []string
-		if ret, err := c.getOrganisations(c.value.server, c.value.token); err != nil {
+
+		orgs, err := c.getOrganisations(c.value.server, c.value.token)
+		if err != nil {
 			return err
-		} else {
-			for _, val := range ret {
-				organisationIDs = append(organisationIDs, val.ID)
-				organisationLabels = append(organisationLabels, val.Name)
-			}
+		}
+
+		for _, val := range orgs {
+			organisationIDs = append(organisationIDs, val.ID)
+			organisationLabels = append(organisationLabels, val.Name)
 		}
 
 		if len(organisationIDs) == 0 {
@@ -372,11 +383,12 @@ func (c *AwareCLIConfigGenerator) getAuthProviders(server string) ([]*aware.Auth
 		Debug:    viper.GetBool("debug"),
 	})
 
-	if ret, err := c.awareClient.GetAllAuthProviders(); err != nil {
+	authProviders, err := c.awareClient.GetAllAuthProviders()
+	if err != nil {
 		return nil, err
-	} else {
-		return ret, nil
 	}
+
+	return authProviders, nil
 }
 
 func (c *AwareCLIConfigGenerator) getLoginToken(server, login, password, authType string) (string, error) {
@@ -391,11 +403,11 @@ func (c *AwareCLIConfigGenerator) getLoginToken(server, login, password, authTyp
 		Debug:    viper.GetBool("debug"),
 	})
 
-	if ret, err := c.awareClient.Login(login, password, authType); err != nil {
+	response, err := c.awareClient.Login(login, password, authType)
+	if err != nil {
 		return "", err
-	} else {
-		return ret.AccessToken, nil
 	}
+	return response.AccessToken, nil
 }
 
 func (c *AwareCLIConfigGenerator) getOrganisations(server, token string) ([]*aware.Organisation, error) {
@@ -411,9 +423,9 @@ func (c *AwareCLIConfigGenerator) getOrganisations(server, token string) ([]*awa
 		Debug:    viper.GetBool("debug"),
 	})
 
-	if ret, err := c.awareClient.GetAllOrganisations(); err != nil {
+	orgs, err := c.awareClient.GetAllOrganisations()
+	if err != nil {
 		return nil, err
-	} else {
-		return ret, nil
 	}
+	return orgs, nil
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/go-faker/faker/v4"
 )
 
+// DeviceType is the aware model for a Device Type.
 type DeviceType struct {
 	ID           string      `json:"id"`
 	Name         string      `json:"name"`
@@ -27,6 +28,7 @@ type DeviceType struct {
 	// Commands
 }
 
+// DeviceTypeParameter is the aware model for a parameter.
 type DeviceTypeParameter struct {
 	ID             string                       `json:"id"`
 	Name           string                       `json:"name"`
@@ -40,11 +42,13 @@ type DeviceTypeParameter struct {
 	// Alarms
 }
 
+// DeviceTypeParameterRange is the aware model for parameter ranges.
 type DeviceTypeParameterRange struct {
 	Min float64 `json:"min"`
 	Max float64 `json:"max"`
 }
 
+// DeviceTypeParameterDisplay is the aware model for parameter displays.
 type DeviceTypeParameterDisplay struct {
 	Unit      string                   `json:"unit"`
 	Scale     float64                  `json:"scale"`
@@ -53,17 +57,25 @@ type DeviceTypeParameterDisplay struct {
 	// Values
 }
 
+// DeviceTypeParameterValueType is the aware enum for parameter value types.
 type DeviceTypeParameterValueType string
 
 const (
-	Float    DeviceTypeParameterValueType = "float"
-	Bool     DeviceTypeParameterValueType = "bool"
-	String   DeviceTypeParameterValueType = "string"
-	Object   DeviceTypeParameterValueType = "object"
+	// Float matches the aware parameter value type.
+	Float DeviceTypeParameterValueType = "float"
+	// Bool matches the aware parameter value type.
+	Bool DeviceTypeParameterValueType = "bool"
+	// String matches the aware parameter value type.
+	String DeviceTypeParameterValueType = "string"
+	// Object matches the aware parameter value type.
+	Object DeviceTypeParameterValueType = "object"
+	// Waveform matches the aware parameter value type.
 	Waveform DeviceTypeParameterValueType = "waveform"
+	// Spectrum matches the aware parameter value type.
 	Spectrum DeviceTypeParameterValueType = "spectrum"
 )
 
+// GetDeviceTypeByID attempts to get the device with the given ID.
 func (c *Client) GetDeviceTypeByID(id string) (*DeviceType, error) {
 	url := fmt.Sprintf("%s/v1/devicetypes/%s", c.server, id)
 
@@ -91,6 +103,7 @@ func (c *Client) GetDeviceTypeByID(id string) (*DeviceType, error) {
 }
 
 //nolint:gocyclo // Complexity is required to generate more realistic random values
+// GetRandomValue generates a random value for the parameter.
 func (p *DeviceTypeParameter) GetRandomValue() interface{} {
 	// Copied staight from Jez's LinqPad
 	// FIXME: Doesn't seem to be respecting these

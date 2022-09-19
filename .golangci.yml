@@ -12,7 +12,7 @@ linters:
     - gocyclo
     - gofmt
     - goimports
-    # - revive
+    - revive
     - godot
     - gofumpt
     # - gomnd

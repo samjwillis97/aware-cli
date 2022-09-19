@@ -1,3 +1,4 @@
+// Package main is the main command entry-point to aware CLI.
 package main
 
 import (

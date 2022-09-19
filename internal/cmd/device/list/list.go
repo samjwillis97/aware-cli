@@ -1,3 +1,4 @@
+// Package list contains the command for listing all devices.
 package list
 
 import (
@@ -10,6 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// NewCmdList is the command for listing devices.
 func NewCmdList() *cobra.Command {
 	return &cobra.Command{
 		Use:     "list",
@@ -21,6 +23,7 @@ func NewCmdList() *cobra.Command {
 	}
 }
 
+// List is Run by NewCmdList to load the list of devices.
 func List(cmd *cobra.Command, _ []string) {
 	loadList(cmd)
 }
@@ -101,11 +104,11 @@ func loadDevices() ([]*aware.Device, error) {
 	resp, err := client.GetAllDevices(aware.GetAllDevicesOptions{})
 	if err != nil {
 		return nil, err
-	} else {
-		return resp, nil
 	}
+	return resp, nil
 }
 
+// SetFlags sets all the flags for the command.
 func SetFlags(cmd *cobra.Command) {
 	cmd.Flags().Bool("plain", false, "Display output in plain mode")
 	cmd.Flags().Bool("no-truncate", false, "Show all available columns in plain mode. Works only with --plain")

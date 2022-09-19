@@ -1,3 +1,4 @@
+// Package table contains a bubbletea interface for an interactive table.
 package table
 
 // https://github.com/charmbracelet/bubbles/blob/master/table/table.go
@@ -33,9 +34,11 @@ type Model struct {
 	viewport viewport.Model
 }
 
+// CommandMessage is a type to efficiently contain messages to send to the table from an external source.
 type CommandMessage byte
 
 const (
+	// AppendReady is used to let the table know a new row is ready to append.
 	AppendReady CommandMessage = iota
 )
 
@@ -199,6 +202,7 @@ func New(opts ...Option) Model {
 	return m
 }
 
+// Init is the Bubble Tea entrypoint.
 func (m Model) Init() tea.Cmd {
 	return nil
 }
@@ -286,7 +290,7 @@ func (m Model) View() string {
 // UpdateViewport updates the list content based on the previously defined
 // columns and rows.
 func (m *Model) UpdateViewport() {
-	m.UpdateRowWidths()
+	m.UpdateColumnWidths()
 
 	// TODO: Stick Cursor
 	m.stickCursor()
@@ -321,15 +325,6 @@ func (m Model) SelectedRow() Row {
 // SetRows set a new rows state.
 func (m *Model) SetRows(r []Row) {
 	m.rows = r
-	m.UpdateViewport()
-}
-
-func (m *Model) SetRowsFromData(d [][]string) {
-	rows := make([]Row, 0)
-	for _, row := range d {
-		rows = append(rows, row)
-	}
-	m.rows = rows
 	m.UpdateViewport()
 }
 
@@ -377,18 +372,22 @@ func (m *Model) MoveUp(n int) {
 	}
 }
 
+// Refresh executes the given refresh function and re sets the data.
 func (m *Model) Refresh() {
 	m.cols, m.rows = m.refreshFunc()
 	m.UpdateViewport()
 }
 
+// AppendRow gets the row from the appendRow pointer and adds it to
+// the existing data.
 func (m *Model) AppendRow() {
 	m.rows = append(m.rows, *m.appendRow)
 	m.UpdateViewport()
 }
 
-//nolint:gocyclo // This requires refactoring to simplify
-func (m *Model) UpdateRowWidths() {
+// UpdateColumnWidths will automatically set the column Widths.
+// nolint:gocyclo // This requires refactoring to simplify.
+func (m *Model) UpdateColumnWidths() {
 	if m.autowidth && m.viewport.Width > 0 {
 		// The padding may be what is causing this to be out of whack
 		// TODO Address

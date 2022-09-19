@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// PublishTelemetry publishes a value for an individual parameter for a device.
 func (c *Client) PublishTelemetry(deviceID string, parameterName string, value interface{}, ts time.Time) error {
 	data := struct {
 		Timestamp     string      `json:"timestamp"`

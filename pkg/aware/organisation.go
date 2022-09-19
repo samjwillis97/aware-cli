@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// Organisation is the aware model of an org.
 type Organisation struct {
 	ID                   string             `json:"id"`
 	Name                 string             `json:"name"`
@@ -18,6 +19,7 @@ type Organisation struct {
 	Files                []OrganisationFile `json:"files"`
 }
 
+// OrganisationFile matches the aware model.
 type OrganisationFile struct {
 	ID   string      `json:"id"`
 	Name string      `json:"name"`
@@ -25,6 +27,7 @@ type OrganisationFile struct {
 	URI  interface{} `json:"uri"`
 }
 
+// GetAllOrganisations gets all available orgs for the currently logged in user.
 func (c *Client) GetAllOrganisations() ([]*Organisation, error) {
 	res, err := c.request(context.Background(), http.MethodGet, c.server+"/v1/organisations", nil, nil)
 	if err != nil {

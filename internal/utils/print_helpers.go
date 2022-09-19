@@ -1,3 +1,4 @@
+// Package utils contains utility functions for aware CLI.
 package utils
 
 import (
@@ -14,7 +15,7 @@ func Success(msg string, args ...interface{}) {
 	fmt.Fprintf(os.Stdout, fmt.Sprintf("\n\u001B[0;32m✓\u001B[0m %s\n", msg), args...)
 }
 
-// ShowLoading, displays a Spinner with the given message.
+// ShowLoading displays a Spinner with the given message.
 // Known as Info in JiraCLI.
 func ShowLoading(msg string) *spinner.Spinner {
 	const refreshRate = 100 * time.Millisecond

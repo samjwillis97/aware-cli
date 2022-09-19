@@ -49,11 +49,13 @@ func WithKeyMap(km KeyMap) Option {
 	}
 }
 
+// WithHelp sets whether to show help.
 func WithHelp() Option {
 	return func(m *Model) {
 	}
 }
 
+// WithFullscreen sets whether to fullscreen the table.
 func WithFullscreen(fullscreen bool) Option {
 	return func(m *Model) {
 		m.fullscreen = fullscreen
@@ -67,18 +69,21 @@ func WithAutoWidth(autowidth bool) Option {
 	}
 }
 
+// WithRefresh sets the function to call when refreshing the table.
 func WithRefresh(fn func() ([]Column, []Row)) Option {
 	return func(m *Model) {
 		m.refreshFunc = fn
 	}
 }
 
+// WithAppending allows setting of a pointer to append from on command.
 func WithAppending(row *Row) Option {
 	return func(m *Model) {
 		m.appendRow = row
 	}
 }
 
+// WithStickyCursor when enabled will keep the cursor on the bottom row.
 func WithStickyCursor(sticky bool) Option {
 	return func(m *Model) {
 		m.stickyCursor = sticky

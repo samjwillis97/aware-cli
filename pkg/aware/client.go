@@ -12,6 +12,7 @@ import (
 	"time"
 )
 
+// Config is the aware connection config.
 type Config struct {
 	Server   string
 	Token    string
@@ -19,6 +20,7 @@ type Config struct {
 	Debug    bool
 }
 
+// Client is an aware client.
 type Client struct {
 	transport http.RoundTripper
 	insecure  bool
@@ -32,10 +34,13 @@ type Client struct {
 type Header map[string]string
 
 var (
-	ErrNoResult    = fmt.Errorf("aware: no result")
+	// ErrNoResult denotes no result from the API.
+	ErrNoResult = fmt.Errorf("aware: no result")
+	// ErrEmptyResult denotes an empty response from the API.
 	ErrEmptyResult = fmt.Errorf("aware: empty response from server")
 )
 
+// ErrUnexpectedResponse denotes a response code that was not expected.
 type ErrUnexpectedResponse struct {
 	Status     string
 	StatusCode int
@@ -45,6 +50,7 @@ func (e *ErrUnexpectedResponse) Error() string {
 	return e.Status
 }
 
+// NewClient creates a new aware client.
 func NewClient(c Config) *Client {
 	client := Client{
 		server: strings.TrimSuffix(c.Server, "/"),

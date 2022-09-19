@@ -1,3 +1,4 @@
+// Package generate contains the command for generate device telemetry.
 package generate
 
 import (
@@ -13,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// NewCmdDeviceTelemetryGenerate is the command for generating device telemetry.
 func NewCmdDeviceTelemetryGenerate() *cobra.Command {
 	cmd := cobra.Command{
 		Use:         "generate",
@@ -56,9 +58,8 @@ func generate(cmd *cobra.Command, args []string) {
 		resp, err := client.GetDeviceByID(deviceID)
 		if err != nil {
 			return nil, err
-		} else {
-			return resp, nil
 		}
+		return resp, nil
 	}()
 	utils.ExitIfError(err)
 
@@ -150,6 +151,7 @@ func publishValuesToRow(client *aware.Client, device *aware.Device) table.Row {
 	return row
 }
 
+// SetFlags sets all the flags for the command.
 func SetFlags(cmd *cobra.Command) {
 	cmd.Flags().BoolP("single-value", "s", false, "Only generates a single value for each parameter")
 	cmd.Flags().Int("frequency-seconds", 30, "The second frequency in which to generate values")

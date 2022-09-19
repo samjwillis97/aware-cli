@@ -7,12 +7,14 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// TelemetryTableDisplayFormat is a telemetry display type.
 type TelemetryTableDisplayFormat struct {
 	Plain        bool
 	NoHeaders    bool
 	StickyCursor bool
 }
 
+// TelemetryTable is a list view for generated telemetry.
 type TelemetryTable struct {
 	Parameters  *[]aware.DeviceTypeParameter
 	Display     TelemetryTableDisplayFormat
@@ -21,6 +23,7 @@ type TelemetryTable struct {
 	InitialRows []table.Row
 }
 
+// Render renders the view with given settings and options.
 func (v *TelemetryTable) Render() error {
 	if v.Display.Plain {
 		return nil

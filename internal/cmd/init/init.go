@@ -1,3 +1,4 @@
+// Package init contains the command for generating a configuration.
 package init
 
 import (

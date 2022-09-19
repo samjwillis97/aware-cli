@@ -1,3 +1,4 @@
+// Package root contains the setup and root of the aware CLI.
 package root
 
 import (
@@ -51,6 +52,7 @@ func init() {
 	})
 }
 
+// NewCmdRoot is the root command of the aware CLI.
 func NewCmdRoot() *cobra.Command {
 	cmd := cobra.Command{
 		Use:   "aware <command> <subcommand>",

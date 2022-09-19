@@ -1,3 +1,4 @@
+// Package telemetry contains the root command for device telemetry.
 package telemetry
 
 import (
@@ -5,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewCmdDeviceTelemetry is the root command for device telemetry.
 func NewCmdDeviceTelemetry() *cobra.Command {
 	cmd := cobra.Command{
 		Use:         "telemetry",
