@@ -21,10 +21,14 @@ Other Architecture:
 
 `env GOOS=windows GOARCH=amd64 go build -o dist/aware.exe ./cmd/aware/main.go`
 
+### Test
+
+Under Construction
+
 
 ### Format
 
-Requires gofump: `go install mvdan.cc/gofumpt@latest`
+Requires gofumpt: `go install mvdan.cc/gofumpt@latest`
 
 `gofumpt -l -w .`
 
