@@ -1,0 +1,14 @@
+image: golang:1.18
+
+pipelines:
+  default:
+    - step:
+        name: Lint code
+        image: golangci/golangci-lint:v1.31.0
+        script:
+          - golangci-lint run -v
+    - step:
+        name: Build
+        script:
+          # Build compiles the packages
+          - go build cmd/*
