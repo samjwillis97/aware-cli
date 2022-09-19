@@ -2,10 +2,13 @@ package generate
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"ampaware.com/cli/internal/utils"
+	"ampaware.com/cli/internal/view"
 	"ampaware.com/cli/pkg/aware"
+	"ampaware.com/cli/pkg/tui/table"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -58,28 +61,47 @@ func generate(cmd *cobra.Command, args []string) {
     }()
     utils.ExitIfError(err)
 
-    printHeaders(device.DeviceType.Parameters)
-    ts, publishedValues := publishParameterValues(client, device)
-    printValues(ts, publishedValues)
+    appendReady := make(chan byte)
+    appendRow, err := publishValuesToRow(client, device)
+    utils.ExitIfError(err)
 
-    if (singleValue) {return}
-
-    timeTicker := (
-        time.Duration(frequencySeconds) * time.Second + 
-        time.Duration(frequencyMinutes) * time.Minute)
-
-    ticker := time.NewTicker(timeTicker)
-    quit := make(chan struct{})
-    for {
-        select {
-        case <- ticker.C:
-            ts, publishedValues := publishParameterValues(client, device)
-            printValues(ts, publishedValues)
-        case <- quit:
-            ticker.Stop()
-            return
-        }
+    t := view.TelemetryTable{
+        Parameters: &device.DeviceType.Parameters,
+        Display: view.TelemetryTableDisplayFormat{
+            Plain: false,
+            NoHeaders: false,
+        },
+        AppendRow: &appendRow,
+        AppendReady: appendReady,
+        InitialRows: []table.Row{appendRow},
     }
+
+    if (!singleValue) {
+        timeTicker := (
+            time.Duration(frequencySeconds) * time.Second + 
+            time.Duration(frequencyMinutes) * time.Minute)
+        ticker := time.NewTicker(timeTicker)
+        signalChan := make(chan os.Signal, 1)
+        quit := make(chan struct{})
+        go func() {
+            for {
+                select {
+                case <- ticker.C:
+                    appendRow, err = publishValuesToRow(client, device)
+                    utils.ExitIfError(err)
+                    appendReady<- 1
+                case <- signalChan:
+                    ticker.Stop()
+                    return
+                case <- quit:
+                    ticker.Stop()
+                    return
+                }
+            }
+        }()
+    }
+
+    utils.ExitIfError(t.Render())
 }
 
 func printHeaders(parameters []aware.DeviceTypeParameter) {
@@ -112,6 +134,18 @@ func publishParameterValues(client *aware.Client, device *aware.Device) (time.Ti
         ))
     }
     return ts, publishedValues
+}
+
+func publishValuesToRow(client *aware.Client, device *aware.Device) (table.Row, error) {
+    ts, values := publishParameterValues(client, device)
+
+    var row table.Row
+    row = append(row, ts.Format(time.RFC3339))
+    for _, val := range values {
+        row = append(row, fmt.Sprintf("%v", val))
+    }
+
+    return row, nil
 }
 
 func SetFlags(cmd *cobra.Command) {

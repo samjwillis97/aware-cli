@@ -18,6 +18,7 @@ func generateRandomInt(min, max int) int {
 }
 
 func generateRandomBool() bool {
+    // FIXME: Always False
     return generateRandomInt(0, 1) == 1
 }
 

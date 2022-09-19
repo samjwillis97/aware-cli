@@ -24,10 +24,19 @@ type Model struct {
 	styles Styles
     fullscreen bool
     autowidth bool
+
     refreshFunc func() ([]Column, []Row)
+
+    appendRow *Row
 
 	viewport viewport.Model
 }
+
+type CommandMessage byte
+
+const (
+    AppendReady CommandMessage = iota
+)
 
 // Row represents one line in the table.
 type Row []string
@@ -53,6 +62,9 @@ type KeyMap struct {
     Exit         key.Binding
     Execute      key.Binding
     Refresh      key.Binding
+    ToClipboard  key.Binding
+    Copy         key.Binding
+    Paste        key.Binding
 }
 
 // Styles contains style definitions for this list component. By default, these
@@ -153,14 +165,19 @@ func New(opts ...Option) Model {
     // TODO: Add a nice Header (Optional)
     // TODO: Add an open/enter/execute function (Optional)
     // TODO: Add a delete function (Optional)
-    // TODO: Add a refresh function (Optional)
     // TODO: Add a filter (Optional)
+    // TODO: Better Footers
     // TODO: Add an option for columns to overflow
     // TODO: Show help
     // TODO: Value to Clipboard
     // TODO: Method to Append for Telemetry Generation!
+    // TODO: Better status of table - to use in footer
 
     // Maybe use channels for comms
+    
+    // TODO: WithAppend() could take a channel and a pointer to a []Row
+    // When a new messages comes on the channel we read from the pointer
+
 	m := Model{
 		cursor:   0,
 		viewport: viewport.New(0, 20),
@@ -192,6 +209,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	switch msg := msg.(type) {
+    case CommandMessage: {
+        switch msg {
+        case AppendReady:
+            m.AppendRow()
+        }
+    }
     case tea.WindowSizeMsg:
         m.SetHeight(msg.Height - 4) // The 3 caters for the headers, might need 4 for a footer?
                                     // Probably a better way of doing this as well
@@ -262,15 +285,6 @@ func (m Model) View() string {
 // UpdateViewport updates the list content based on the previously defined
 // columns and rows.
 func (m *Model) UpdateViewport() {
-    // TODO: Fix Update Data isn't working
-    // renderedRows is turning the correct rows
-    // with the new data
-    // but it isn't being rendered
-
-
-    // Correct number of rows returned after the NewData
-    // But then the original number returned next update..
-
     m.UpdateRowWidths()
 
 	renderedRows := make([]string, 0, len(m.rows))
@@ -350,7 +364,11 @@ func (m *Model) MoveUp(n int) {
 
 func (m *Model) Refresh() {
     m.cols, m.rows = m.refreshFunc()
-    m.UpdateRowWidths()
+    m.UpdateViewport()
+}
+
+func (m *Model) AppendRow() {
+    m.rows = append(m.rows, *m.appendRow)
     m.UpdateViewport()
 }
 
@@ -485,6 +503,7 @@ func (m Model) headersView() string {
 }
 
 func (m Model) footersView() string {
+    // TODO: Put line above this 
     return fmt.Sprintf("Showing %d entries", len(m.rows))
 }
 

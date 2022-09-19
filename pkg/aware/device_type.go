@@ -91,6 +91,7 @@ func (c *Client) GetDeviceTypeByID(id string) (*DeviceType, error) {
 
 func (p *DeviceTypeParameter) GetRandomValue() interface{} {
     // Copied staight from Jez's LinqPad
+    // FIXME: Doesn't seem to be respecting these
     if (p.Display != DeviceTypeParameterDisplay{} && p.Display.Unit != "") {
         switch p.Display.Unit {
         case "ohm", "resistance":

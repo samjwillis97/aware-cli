@@ -74,3 +74,9 @@ func WithRefresh(fn func() ([]Column, []Row)) Option {
     }
 }
 
+func WithAppending(row *Row) Option {
+    return func(m *Model) {
+        m.appendRow = row
+    }
+}
+
