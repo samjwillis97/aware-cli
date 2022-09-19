@@ -33,7 +33,7 @@ func ShowLoading(msg string) *spinner.Spinner {
 
 // Warn prints warning message in stderr.
 func Warn(msg string, args ...interface{}) {
-    fmt.Fprintf(os.Stderr, fmt.Sprintf("\u001B[0;33m%s\u001B[0m\n", msg), args...)
+	fmt.Fprintf(os.Stderr, fmt.Sprintf("\u001B[0;33m%s\u001B[0m\n", msg), args...)
 }
 
 // Fail prints failure messge in stderr.
@@ -46,4 +46,3 @@ func Failed(msg string, args ...interface{}) {
 	Fail(msg, args...)
 	os.Exit(1)
 }
-

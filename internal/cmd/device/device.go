@@ -7,39 +7,39 @@ import (
 )
 
 func NewCmdDevice() *cobra.Command {
-    cmd := cobra.Command{
-        Use: "device",
-        Short: "Manage Devices in an Organisation",
-        Long: "See Above?", // TODO: Fix
-        Aliases: []string{"devices"},
-        Annotations: map[string]string{"": ""}, // TODO: What is this?
-        RunE: device,
-    }
+	cmd := cobra.Command{
+		Use:         "device",
+		Short:       "Manage Devices in an Organisation",
+		Long:        "See Above?", // TODO: Fix
+		Aliases:     []string{"devices"},
+		Annotations: map[string]string{"": ""}, // TODO: What is this?
+		RunE:        device,
+	}
 
-    // TODO: Create
-    // TODO: Delete -> Are You Sure?
-    // TODO: Edit
-    // TODO: View
-    // TODO: State?
-    // TODO: Telemetry ->
-    //  - Watch
-    //  - Generate
-    // TODO: Parameter, Telemetry
-    //  - Watch
-    //  - Generate
+	// TODO: Create
+	// TODO: Delete -> Are You Sure?
+	// TODO: Edit
+	// TODO: View
+	// TODO: State?
+	// TODO: Telemetry ->
+	//  - Watch
+	//  - Generate
+	// TODO: Parameter, Telemetry
+	//  - Watch
+	//  - Generate
 
-    lc := list.NewCmdList()
+	lc := list.NewCmdList()
 
-    cmd.AddCommand(
-        lc,
-        telemetry.NewCmdDeviceTelemetry(),
-    )
+	cmd.AddCommand(
+		lc,
+		telemetry.NewCmdDeviceTelemetry(),
+	)
 
-    list.SetFlags(lc)
+	list.SetFlags(lc)
 
-    return &cmd
+	return &cmd
 }
 
 func device(cmd *cobra.Command, _ []string) error {
-    return cmd.Help()
+	return cmd.Help()
 }

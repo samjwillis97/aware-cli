@@ -8,59 +8,67 @@ import (
 )
 
 type Device struct {
-    ID string `json:"id"`
-    DeviceType DeviceType `json:"deviceType"`
-    IsActive bool `json:"isActive"`
-    IsEnabled bool `json:"isEnabled"`
-    IsHidden bool `json:"isHidden"`
-    ParentEntity Entity `json:"parentEntity"`
-    Organisation string `json:"organisation"`
-    CloudID string `json:"cloudId"`
-    // Attributes
-    // Identity
-    // IdentityHistory
-    // Credentials
-    // LatestValues
-    DisplayName string `json:"displayName"`
-    State interface{} `json:"state"`
+	ID           string     `json:"id"`
+	DeviceType   DeviceType `json:"deviceType"`
+	IsActive     bool       `json:"isActive"`
+	IsEnabled    bool       `json:"isEnabled"`
+	IsHidden     bool       `json:"isHidden"`
+	ParentEntity Entity     `json:"parentEntity"`
+	Organisation string     `json:"organisation"`
+	CloudID      string     `json:"cloudId"`
+	// Attributes
+	// Identity
+	// IdentityHistory
+	// Credentials
+	// LatestValues
+	DisplayName string      `json:"displayName"`
+	State       interface{} `json:"state"`
 }
 
 type GetAllDevicesOptions struct {
-    IncludeInactive bool
-    EntityId string
-    OrganisationId string
-    DeviceTypeKind string
-    IncludeLatestValues bool
+	IncludeInactive     bool
+	EntityId            string
+	OrganisationId      string
+	DeviceTypeKind      string
+	IncludeLatestValues bool
 }
 
 func (c *Client) GetAllDevices(opts GetAllDevicesOptions) ([]*Device, error) {
-    queryString := ""
+	queryString := ""
 
-    // TODO: Test
-    if opts.DeviceTypeKind != "" {
-        queryString += fmt.Sprintf("deviceTypeKind=%s", opts.DeviceTypeKind)
-    }
-    if opts.IncludeInactive {
-        if (queryString != "") {queryString += "&"}
-        queryString += fmt.Sprintf("includeInactive=%v", opts.IncludeInactive)
-    }
-    if opts.EntityId != "" {
-        if (queryString != "") {queryString += "&"}
-        queryString += fmt.Sprintf("entityId=%s", opts.EntityId)
-    }
-    if opts.OrganisationId != "" {
-        if (queryString != "") {queryString += "&"}
-        queryString += fmt.Sprintf("organisationId=%s", opts.OrganisationId)
-    }
-    if opts.IncludeLatestValues {
-        if (queryString != "") {queryString += "&"}
-        queryString += fmt.Sprintf("IncludeLatestValues=%v", opts.IncludeLatestValues)
-    }
+	// TODO: Test
+	if opts.DeviceTypeKind != "" {
+		queryString += fmt.Sprintf("deviceTypeKind=%s", opts.DeviceTypeKind)
+	}
+	if opts.IncludeInactive {
+		if queryString != "" {
+			queryString += "&"
+		}
+		queryString += fmt.Sprintf("includeInactive=%v", opts.IncludeInactive)
+	}
+	if opts.EntityId != "" {
+		if queryString != "" {
+			queryString += "&"
+		}
+		queryString += fmt.Sprintf("entityId=%s", opts.EntityId)
+	}
+	if opts.OrganisationId != "" {
+		if queryString != "" {
+			queryString += "&"
+		}
+		queryString += fmt.Sprintf("organisationId=%s", opts.OrganisationId)
+	}
+	if opts.IncludeLatestValues {
+		if queryString != "" {
+			queryString += "&"
+		}
+		queryString += fmt.Sprintf("IncludeLatestValues=%v", opts.IncludeLatestValues)
+	}
 
-    url := c.server+"/v1/devices"
-    if queryString != "" {
-        url += "?"+queryString
-    }
+	url := c.server + "/v1/devices"
+	if queryString != "" {
+		url += "?" + queryString
+	}
 
 	res, err := c.request(context.Background(), http.MethodGet, url, nil, nil)
 	if err != nil {
@@ -87,7 +95,7 @@ func (c *Client) GetAllDevices(opts GetAllDevicesOptions) ([]*Device, error) {
 }
 
 func (c *Client) GetDeviceByID(id string) (*Device, error) {
-    url := c.server+"/v1/devices/"+id
+	url := c.server + "/v1/devices/" + id
 
 	res, err := c.request(context.Background(), http.MethodGet, url, nil, nil)
 	if err != nil {
@@ -101,7 +109,7 @@ func (c *Client) GetDeviceByID(id string) (*Device, error) {
 	defer func() { _ = res.Body.Close() }()
 
 	if res.StatusCode != http.StatusOK {
-        return nil, formatUnexpectedResponse(res)
+		return nil, formatUnexpectedResponse(res)
 	}
 
 	var out *Device

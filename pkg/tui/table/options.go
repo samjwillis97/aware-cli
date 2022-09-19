@@ -39,7 +39,7 @@ func WithFocused(f bool) Option {
 func WithStyles(s Styles) Option {
 	return func(m *Model) {
 		m.styles = s
-    }
+	}
 }
 
 // WithKeyMap sets the key map.
@@ -50,33 +50,37 @@ func WithKeyMap(km KeyMap) Option {
 }
 
 func WithHelp() Option {
-    return func(m *Model) {
-
-    }
+	return func(m *Model) {
+	}
 }
 
 func WithFullscreen(fullscreen bool) Option {
-    return func(m *Model) {
-        m.fullscreen = fullscreen
-    }
+	return func(m *Model) {
+		m.fullscreen = fullscreen
+	}
 }
 
-// WithAutoWidth must be called after Columns and Rows have been set
+// WithAutoWidth must be called after Columns and Rows have been set.
 func WithAutoWidth(autowidth bool) Option {
-    return func(m *Model) {
-        m.autowidth = autowidth
-    }
+	return func(m *Model) {
+		m.autowidth = autowidth
+	}
 }
 
 func WithRefresh(fn func() ([]Column, []Row)) Option {
-    return func (m *Model) {
-        m.refreshFunc = fn
-    }
+	return func(m *Model) {
+		m.refreshFunc = fn
+	}
 }
 
 func WithAppending(row *Row) Option {
-    return func(m *Model) {
-        m.appendRow = row
-    }
+	return func(m *Model) {
+		m.appendRow = row
+	}
 }
 
+func WithStickyCursor(sticky bool) Option {
+	return func(m *Model) {
+		m.stickyCursor = sticky
+	}
+}

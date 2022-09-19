@@ -1,28 +1,28 @@
 package aware
 
 import (
-    "net/http"
-    "context"
-    "encoding/json"
+	"context"
+	"encoding/json"
+	"net/http"
 )
 
 type Organisation struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	IsActive bool   `json:"isActive"`
-    Options interface{} `json:"options"`
-    Abbreviation string `json:"abbreviation"`
-    AllowedDeviceTypes []string `json:"allowedDeviceTypes"`
-    AllowedEntityTypes []string `json:"allowedEntityTypes"`
-    AllowedActivityTypes []string `json:"allowedActivityTypes"`
-    Files []OrganisationFile `json:"files"`
+	ID                   string             `json:"id"`
+	Name                 string             `json:"name"`
+	IsActive             bool               `json:"isActive"`
+	Options              interface{}        `json:"options"`
+	Abbreviation         string             `json:"abbreviation"`
+	AllowedDeviceTypes   []string           `json:"allowedDeviceTypes"`
+	AllowedEntityTypes   []string           `json:"allowedEntityTypes"`
+	AllowedActivityTypes []string           `json:"allowedActivityTypes"`
+	Files                []OrganisationFile `json:"files"`
 }
 
 type OrganisationFile struct {
-    ID  string `json:"id"`
-    Name string `json:"name"`
-    Type string `json:"string"`
-    URI interface {} `json:"uri"`
+	ID   string      `json:"id"`
+	Name string      `json:"name"`
+	Type string      `json:"string"`
+	URI  interface{} `json:"uri"`
 }
 
 func (c *Client) GetAllOrganisations() ([]*Organisation, error) {
@@ -38,7 +38,7 @@ func (c *Client) GetAllOrganisations() ([]*Organisation, error) {
 	defer func() { _ = res.Body.Close() }()
 
 	if res.StatusCode != http.StatusOK {
-        return nil, formatUnexpectedResponse(res)
+		return nil, formatUnexpectedResponse(res)
 	}
 
 	var out []*Organisation

@@ -27,8 +27,8 @@ func init() {
 			// Read the config from the default directory
 			configDir, err := awareConfig.GetConfigDirectory()
 			if err != nil {
-                utils.Failed("Error Finding configuration directory: %v", err)
-                return
+				utils.Failed("Error Finding configuration directory: %v", err)
+				return
 			}
 
 			// Sets up the config directory, filename, and filetype
@@ -70,11 +70,10 @@ func NewCmdRoot() *cobra.Command {
 
 			configFile := viper.ConfigFileUsed()
 			if !awareConfig.Exists(configFile) {
-                utils.Failed("Missing configuration file.\nRun 'aware init' to configure the tool.")
+				utils.Failed("Missing configuration file.\nRun 'aware init' to configure the tool.")
 			}
 
 			awareConfig.CheckForToken()
-
 		},
 	}
 

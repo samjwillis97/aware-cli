@@ -37,12 +37,12 @@ var (
 )
 
 type ErrUnexpectedResponse struct {
-    Status string
-    StatusCode int
+	Status     string
+	StatusCode int
 }
 
 func (e *ErrUnexpectedResponse) Error() string {
-    return e.Status
+	return e.Status
 }
 
 func NewClient(c Config) *Client {
@@ -111,8 +111,8 @@ func prettyPrintDump(heading string, data []byte) {
 }
 
 func formatUnexpectedResponse(res *http.Response) *ErrUnexpectedResponse {
-    return &ErrUnexpectedResponse{
-        Status: res.Status,
-        StatusCode: res.StatusCode,
-    }
+	return &ErrUnexpectedResponse{
+		Status:     res.Status,
+		StatusCode: res.StatusCode,
+	}
 }
