@@ -7,8 +7,18 @@ pipelines:
         image: golangci/golangci-lint:v1.31.0
         script:
           - golangci-lint run -v
-    - step:
-        name: Build
-        script:
-          # Build compiles the packages
-          - go build cmd/aware/main.go
+    - parallel:
+      - step:
+          name: Build Linux
+          script:
+            # Build compiles the packages
+            - go build -o aware cmd/aware/main.go 
+          artifacts:
+            - aware
+      - step:
+          name: Build Windows
+          script:
+            # Build compiles the packages
+            - env GOOS=windows GOARCH=amd64 go build -o aware.exe cmd/aware/main.go 
+          artifacts:
+            - aware.exe
