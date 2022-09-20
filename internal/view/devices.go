@@ -48,6 +48,8 @@ func (d *DeviceList) Render() error {
 		table.WithAutoWidth(true),
 		table.WithFullscreen(true),
 		table.WithRefresh(d.getTableFormattedData),
+		table.WithCopyIndex(0),
+		table.WithHelp(),
 		table.WithFocused(true))
 
 	p := tea.NewProgram(t)

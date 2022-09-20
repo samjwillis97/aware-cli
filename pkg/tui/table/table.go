@@ -7,11 +7,14 @@ import (
 	"fmt"
 	"strings"
 
+	"ampaware.com/cli/internal/utils"
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mattn/go-runewidth"
+	"golang.design/x/clipboard"
 )
 
 // Model defines a state for the table widget.
@@ -26,8 +29,11 @@ type Model struct {
 	fullscreen   bool
 	autowidth    bool
 	stickyCursor bool
+	helpEnabled  bool
+	help         help.Model
 
 	refreshFunc func() ([]Column, []Row)
+	copyIndex   int
 
 	appendRow *Row
 
@@ -69,6 +75,7 @@ type KeyMap struct {
 	ToClipboard  key.Binding
 	Copy         key.Binding
 	Paste        key.Binding
+	ToggleHelp   key.Binding
 }
 
 // Styles contains style definitions for this list component. By default, these
@@ -125,7 +132,7 @@ func DefaultKeyMap() KeyMap {
 		),
 		Exit: key.NewBinding(
 			key.WithKeys("q", "ctrl+c"),
-			key.WithHelp("q/ctrl+", "exit"),
+			key.WithHelp("q/ctrl+c", "exit"),
 		),
 		Execute: key.NewBinding(
 			key.WithKeys("enter"),
@@ -135,6 +142,32 @@ func DefaultKeyMap() KeyMap {
 			key.WithKeys("r", "R"),
 			key.WithHelp("r", "refresh"),
 		),
+		ToClipboard: key.NewBinding(
+			key.WithKeys("c", "C"),
+			key.WithHelp("c", "to clipboard"),
+		),
+		ToggleHelp: key.NewBinding(
+			key.WithKeys("?"),
+			key.WithHelp("?", "toggle help"),
+		),
+	}
+}
+
+// ShortHelp returns keybindings to be shown in the mini help view. It's part
+// of the key.Map interface.
+func (k KeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.Exit, k.ToggleHelp}
+}
+
+// FullHelp returns keybindings for the expanded help view. It's part of the
+// key.Map interface.
+func (k KeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{k.LineUp, k.LineDown}, // First Column
+		{k.PageUp, k.PageDown},
+		{k.GotoTop, k.GotoBottom},
+		{k.Execute, k.Refresh},
+		{k.ToggleHelp, k.Exit},
 	}
 }
 
@@ -157,6 +190,7 @@ func DefaultStyles() Styles {
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderForeground(lipgloss.Color("240")).
 			BorderTop(true).
+			BorderBottom(true).
 			Bold(false),
 	}
 }
@@ -208,6 +242,7 @@ func (m Model) Init() tea.Cmd {
 }
 
 // Update is the Bubble Tea update loop.
+// nolint:gocyclo // This requires refactoring to simplify.
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if !m.focus {
 		return m, nil
@@ -223,9 +258,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case tea.WindowSizeMsg:
-		m.SetHeight(msg.Height - 5) // The 3 caters for the headers, might need 4 for a footer?
-		// Probably a better way of doing this as well
+		requiredPadding := 0
+		requiredPadding += 3 // Headers
+		requiredPadding += 3 // Footer
+		if m.helpEnabled {
+			requiredPadding++ // Short Help
+		}
+		m.SetHeight(msg.Height - requiredPadding)
 		m.SetWidth(msg.Width)
+		m.help.Width = msg.Width
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.KeyMap.LineUp):
@@ -254,10 +295,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.Refresh() // Channel Might work, need to make sure states are set correctly though
 		case key.Matches(msg, m.KeyMap.Exit):
 			return m, tea.Quit
+		case key.Matches(msg, m.KeyMap.ToClipboard):
+			m.CopyToClipboard()
 		case key.Matches(msg, m.KeyMap.Execute):
 			return m, tea.Batch(
 				tea.Printf("Let's go to %s!", m.SelectedRow()[1]),
 			)
+		case key.Matches(msg, m.KeyMap.ToggleHelp):
+			if m.helpEnabled {
+				if m.help.ShowAll {
+					m.SetHeight(m.viewport.Height + 1)
+				} else {
+					m.SetHeight(m.viewport.Height - 1)
+				}
+				m.help.ShowAll = !m.help.ShowAll
+			}
 		}
 	}
 
@@ -284,7 +336,13 @@ func (m *Model) Blur() {
 
 // View renders the component.
 func (m Model) View() string {
-	return m.headersView() + "\n" + m.viewport.View() + "\n" + m.footersView()
+	view := m.headersView()
+	view += "\n" + m.viewport.View()
+	view += "\n" + m.footersView()
+	if m.helpEnabled {
+		view += "\n" + m.help.View(m.KeyMap)
+	}
+	return view
 }
 
 // UpdateViewport updates the list content based on the previously defined
@@ -491,6 +549,14 @@ func (m *Model) GotoTop() {
 // GotoBottom moves the selection to the last row.
 func (m *Model) GotoBottom() {
 	m.MoveDown(len(m.rows))
+}
+
+// CopyToClipboard will copy the value at the copyIndex for the current row the cursor is on.
+func (m *Model) CopyToClipboard() {
+	err := clipboard.Init()
+	utils.ExitIfError(err)
+
+	clipboard.Write(clipboard.FmtText, []byte(m.rows[m.cursor][m.copyIndex]))
 }
 
 // FromValues create the table rows from a simple string. It uses `\n` by

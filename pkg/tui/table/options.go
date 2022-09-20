@@ -1,5 +1,7 @@
 package table
 
+import "github.com/charmbracelet/bubbles/help"
+
 // WithColumns sets the table columns (headers).
 func WithColumns(cols []Column) Option {
 	return func(m *Model) {
@@ -52,6 +54,8 @@ func WithKeyMap(km KeyMap) Option {
 // WithHelp sets whether to show help.
 func WithHelp() Option {
 	return func(m *Model) {
+		m.helpEnabled = true
+		m.help = help.New()
 	}
 }
 
@@ -87,5 +91,12 @@ func WithAppending(row *Row) Option {
 func WithStickyCursor(sticky bool) Option {
 	return func(m *Model) {
 		m.stickyCursor = sticky
+	}
+}
+
+// WithCopyIndex sets which row to copy to the clipboard.
+func WithCopyIndex(index int) Option {
+	return func(m *Model) {
+		m.copyIndex = index
 	}
 }

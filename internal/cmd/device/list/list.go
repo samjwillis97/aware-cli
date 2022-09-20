@@ -53,9 +53,6 @@ func loadList(cmd *cobra.Command) {
 	noTruncate, err := cmd.Flags().GetBool("no-truncate")
 	utils.ExitIfError(err)
 
-	// receiving := make(chan table.TransmitMessage)
-	// transmit := make(chan table.ReceiveMessage)
-
 	v := view.DeviceList{
 		Total:  total,
 		Server: viper.GetString("server"),
@@ -66,29 +63,7 @@ func loadList(cmd *cobra.Command) {
 			NoTruncate: noTruncate,
 		},
 		Refresh: loadDevices,
-		// Transmit: receiving,
-		// Receive: transmit,
 	}
-
-	// Maybe move this to the view layer
-	// Just feed in the required functions?
-	// Could use the With.. Format or just as straight functions
-
-	// Yeah this needs to be done on the view, to get the correct columns etc.
-	// go func() {
-	//     for {
-	//         switch <-receiving {
-	//         case table.RefreshPressed:
-	//             devices, err := loadDevices()
-
-	//             utils.ExitIfError(err)
-	//             v.Data = devices
-	//             transmit <- table.RefreshCompleted
-	//         case table.Exit:
-	//             break
-	//         }
-	//     }
-	// }()
 
 	utils.ExitIfError(v.Render())
 }
