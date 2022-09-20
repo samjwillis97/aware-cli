@@ -15,7 +15,6 @@ linters:
     - revive
     - godot
     - gofumpt
-    # - gomnd
     - gosimple
     - govet
     - ineffassign
