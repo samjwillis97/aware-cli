@@ -31,20 +31,19 @@ type Entity struct {
 	// IdentityHistory
 }
 
-
 // GetAllEntitiesOptions are the available options for the GetAllEntities query.
 type GetAllEntitiesOptions struct {
-    IncludeInactive bool
-    ExcludeDetail bool
-    ParentEntityID string
-    Group string
-    Kind string
+	IncludeInactive bool
+	ExcludeDetail   bool
+	ParentEntityID  string
+	Group           string
+	Kind            string
 }
 
 // GetAllEntities attempts to retrieve all entities for an organistion.
 // org is required.
 func (c *Client) GetAllEntities(org string, opts GetAllEntitiesOptions) ([]*Entity, error) {
-    // TODO: Opts
+	// TODO: Opts
 	url := fmt.Sprintf("%s/v1/entities?organisationId=%s", c.server, org)
 
 	res, err := c.request(context.Background(), http.MethodGet, url, nil, nil)

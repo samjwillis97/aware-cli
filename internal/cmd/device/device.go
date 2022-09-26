@@ -31,16 +31,16 @@ func NewCmdDevice() *cobra.Command {
 	//  - Generate
 
 	lc := list.NewCmdList()
-    cr := create.NewCmdCreate()
+	cr := create.NewCmdCreate()
 
 	cmd.AddCommand(
 		lc,
-        cr,
+		cr,
 		telemetry.NewCmdDeviceTelemetry(),
 	)
 
 	list.SetFlags(lc)
-    create.SetFlags(cr)
+	create.SetFlags(cr)
 
 	return &cmd
 }

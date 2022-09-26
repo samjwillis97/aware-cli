@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// Device is the aware model of a device.
+// Device is the aware model of a device when listing.
 type Device struct {
 	ID           string     `json:"id"`
 	DeviceType   DeviceType `json:"deviceType"`
@@ -26,21 +26,22 @@ type Device struct {
 	State       interface{} `json:"state"`
 }
 
+// CreatedDevice is the aware model return when creating a device.
 type CreatedDevice struct {
-	ID           string     `json:"id"`
+	ID           string `json:"id"`
 	DeviceType   string `json:"deviceType"`
-	IsActive     bool       `json:"isActive"`
-	IsEnabled    bool       `json:"isEnabled"`
-	IsHidden     bool       `json:"isHidden"`
+	IsActive     bool   `json:"isActive"`
+	IsEnabled    bool   `json:"isEnabled"`
+	IsHidden     bool   `json:"isHidden"`
 	ParentEntity string `json:"parentEntity"`
-	Organisation string     `json:"organisation"`
-	CloudID      string     `json:"cloudId"`
+	Organisation string `json:"organisation"`
+	CloudID      string `json:"cloudId"`
 	// Attributes
 	// Identity
 	// IdentityHistory
 	// Credentials
 	// LatestValues
-	DisplayName string      `json:"displayName"`
+	DisplayName string `json:"displayName"`
 }
 
 // GetAllDevicesOptions are the available options for the GetAllDevices query.
@@ -54,15 +55,15 @@ type GetAllDevicesOptions struct {
 
 // CreateDeviceRequest is the data used to create a new device.
 type CreateDeviceRequest struct {
-    DisplayName string `json:"displayName"`
-    DeviceType string `json:"deviceType"`
-    ParentEntity string `json:"parentEntity"`
-    Organisation string `json:"organisation"`
-    // IsActive bool
-    // IsEnabled bool
-    // Identity 
-    // IdentityHistory
-    // Credentials
+	DisplayName  string `json:"displayName"`
+	DeviceType   string `json:"deviceType"`
+	ParentEntity string `json:"parentEntity"`
+	Organisation string `json:"organisation"`
+	// IsActive bool
+	// IsEnabled bool
+	// Identity
+	// IdentityHistory
+	// Credentials
 }
 
 // CreateDevice will create a new device with the given request details.

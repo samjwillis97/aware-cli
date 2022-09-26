@@ -79,9 +79,9 @@ const (
 func (c *Client) GetAllDeviceTypes(org string) ([]*DeviceType, error) {
 	url := fmt.Sprintf("%s/v1/devicetypes", c.server)
 
-    if (org != "") {
-        url += "?organisationId=" + org
-    }
+	if org != "" {
+		url += "?organisationId=" + org
+	}
 
 	res, err := c.request(context.Background(), http.MethodGet, url, nil, nil)
 	if err != nil {

@@ -4,7 +4,7 @@ import "os"
 
 // StdinHasData checks if standard input has any data to be processed.
 func StdinHasData() bool {
-    fi, err := os.Stdin.Stat()
+	fi, err := os.Stdin.Stat()
 	if err != nil {
 		return false
 	}

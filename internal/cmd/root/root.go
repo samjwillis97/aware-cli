@@ -101,7 +101,7 @@ func NewCmdRoot() *cobra.Command {
 }
 
 func addChildCommands(cmd *cobra.Command) {
-    // TODO: Switch Organisation
+	// TODO: Switch Organisation
 	cmd.AddCommand(
 		initCmd.NewCmdInit(),
 		device.NewCmdDevice(),
