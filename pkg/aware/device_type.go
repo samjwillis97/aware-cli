@@ -75,6 +75,37 @@ const (
 	Spectrum DeviceTypeParameterValueType = "spectrum"
 )
 
+// GetAllDeviceTypes attempts to retrieve all device types.
+func (c *Client) GetAllDeviceTypes(org string) ([]*DeviceType, error) {
+	url := fmt.Sprintf("%s/v1/devicetypes", c.server)
+
+    if (org != "") {
+        url += "?organisationId=" + org
+    }
+
+	res, err := c.request(context.Background(), http.MethodGet, url, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if res == nil {
+		return nil, ErrEmptyResult
+	}
+
+	defer func() { _ = res.Body.Close() }()
+
+	if res.StatusCode != http.StatusOK {
+		return nil, formatUnexpectedResponse(res)
+	}
+
+	var out []*DeviceType
+	if err := json.NewDecoder(res.Body).Decode(&out); err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
 // GetDeviceTypeByID attempts to get the device with the given ID.
 func (c *Client) GetDeviceTypeByID(id string) (*DeviceType, error) {
 	url := fmt.Sprintf("%s/v1/devicetypes/%s", c.server, id)
