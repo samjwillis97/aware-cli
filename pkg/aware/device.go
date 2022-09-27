@@ -101,6 +101,26 @@ func (c *Client) CreateDevice(req *CreateDeviceRequest) (*CreatedDevice, error) 
 	return out, nil
 }
 
+// DeleteDevice will delete a device with the given ID.
+func (c *Client) DeleteDevice(id string) error {
+	res, err := c.request(context.Background(), http.MethodDelete, c.server+"/v1/devices/delete/"+id, nil, nil)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		return ErrEmptyResult
+	}
+
+	defer func() { _ = res.Body.Close() }()
+
+	if res.StatusCode != http.StatusNoContent {
+		return formatUnexpectedResponse(res)
+	}
+
+	return nil
+}
+
 // GetAllDevices gets all the available devices for a user with the given options.
 func (c *Client) GetAllDevices(opts GetAllDevicesOptions) ([]*Device, error) {
 	queryString := ""

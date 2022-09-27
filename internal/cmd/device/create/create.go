@@ -172,6 +172,7 @@ func (c *createCmd) askQuestions() error {
 			for _, t := range c.deviceTypes {
 				if t.Name == ans.DeviceType {
 					c.params.deviceType = t.ID
+					break
 				}
 			}
 		}
@@ -189,6 +190,7 @@ func (c *createCmd) askQuestions() error {
 			for _, t := range c.parentEntities {
 				if t.GetParentHierachyName() == ans.ParentEntity {
 					c.params.parentEntity = t.ID
+					break
 				}
 			}
 		}
