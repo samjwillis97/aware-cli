@@ -57,23 +57,23 @@ func del(cmd *cobra.Command, args []string) {
 		utils.ExitIfError(del.getDeviceID())
 	}
 
-    if (!del.params.force) {
-        var confirm bool
+	if !del.params.force {
+		var confirm bool
 
-        qs := &survey.Question{
-            Name:     "id",
-            Prompt:   &survey.Confirm{Message: fmt.Sprintf("Are you sure you want to delete %s?", del.params.ID)},
-            Validate: survey.Required,
-        }
+		qs := &survey.Question{
+			Name:     "id",
+			Prompt:   &survey.Confirm{Message: fmt.Sprintf("Are you sure you want to delete %s?", del.params.ID)},
+			Validate: survey.Required,
+		}
 
-        if err := survey.Ask([]*survey.Question{qs}, &confirm); err != nil {
-            utils.ExitIfError(err)
-        }
+		if err := survey.Ask([]*survey.Question{qs}, &confirm); err != nil {
+			utils.ExitIfError(err)
+		}
 
-        if !confirm {
-            return
-        }
-    }
+		if !confirm {
+			return
+		}
+	}
 
 	err := func() error {
 		s := utils.ShowLoading(fmt.Sprintf("Removing Device %s", del.params.ID))
