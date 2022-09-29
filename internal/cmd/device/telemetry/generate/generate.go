@@ -32,6 +32,8 @@ func NewCmdDeviceTelemetryGenerate() *cobra.Command {
 }
 
 func generate(cmd *cobra.Command, args []string) {
+    // TODO: Get rid of min args - give device list
+
 	// Default will generate a telemetry value for each parameter once per 10 seconds
 	deviceID := args[0]
 
@@ -106,22 +108,6 @@ func generate(cmd *cobra.Command, args []string) {
 	utils.ExitIfError(t.Render())
 }
 
-// func printHeaders(parameters []aware.DeviceTypeParameter) {
-//     toPrint := "Generated Values for "
-//     for _, val := range parameters {
-//         toPrint += fmt.Sprintf("%s    ", val.DisplayName)
-//     }
-//     fmt.Print(toPrint+"\n")
-// }
-
-// func printValues(ts time.Time, values []interface{}) {
-//     toPrint := ts.Format(time.RFC3339) + "    "
-//     for _, val := range values {
-//         toPrint += fmt.Sprintf("%v    ", val)
-//     }
-//     fmt.Print(toPrint+"\n")
-// }
-
 func publishParameterValues(client *aware.Client, device *aware.Device) (time.Time, []interface{}) {
 	ts := time.Now()
 	// var publishedValues []interface{}
@@ -129,12 +115,14 @@ func publishParameterValues(client *aware.Client, device *aware.Device) (time.Ti
 	for _, parameter := range device.DeviceType.Parameters {
 		value := parameter.GetRandomValue()
 		publishedValues = append(publishedValues, value)
-		utils.ExitIfError(client.PublishTelemetry(
-			device.ID,
-			parameter.Name,
-			value,
-			ts,
-		))
+		go func(parameter aware.DeviceTypeParameter) {
+                utils.ExitIfError(client.PublishTelemetry(
+                device.ID,
+                parameter.Name,
+                value,
+                ts,
+            ))
+        }(parameter)
 	}
 	return ts, publishedValues
 }
