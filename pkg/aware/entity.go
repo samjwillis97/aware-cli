@@ -75,5 +75,5 @@ func (e *Entity) GetParentHierachyName() string {
 	if e.ParentEntity == nil {
 		return e.Name
 	}
-	return e.ParentEntity.GetParentHierachyName() + " - " + e.Name
+	return e.ParentEntity.GetParentHierachyName() + " -> " + e.Name
 }

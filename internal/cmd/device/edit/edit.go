@@ -72,7 +72,7 @@ func edit(cmd *cobra.Command, args []string) {
 
 	if edit.params.ID == "" {
 		utils.ExitIfError(edit.setDevices())
-		utils.ExitIfError(edit.getDeviceID())
+		utils.ExitIfError(edit.getDevice())
 	} else {
         utils.ExitIfError(edit.setDevice())
     }
@@ -142,12 +142,12 @@ func (e *editCmd) setParentEntities() error {
 	return nil
 }
 
-func (e *editCmd) getDeviceID() error {
+func (e *editCmd) getDevice() error {
 	var ans string
 
 	options := make([]string, 0)
 	for _, device := range e.devices {
-		options = append(options, device.ID+" - "+device.DisplayName)
+		options = append(options, device.ID+" - "+device.ParentEntity.GetParentHierachyName()+" - "+device.DisplayName)
 	}
 
 	qs := &survey.Question{
@@ -164,7 +164,7 @@ func (e *editCmd) getDeviceID() error {
 	}
 
 	for _, device := range e.devices {
-		if ans == device.ID+" - "+device.DisplayName {
+		if ans == device.ID+" - "+device.ParentEntity.GetParentHierachyName()+" - "+device.DisplayName {
 			e.params.ID = device.ID
             e.device = device
 			break
@@ -202,13 +202,13 @@ func (e *editCmd) getDeviceType() error {
 	qs = &survey.Question{
 		Name: "deviceType",
 		Prompt: &survey.Select{
-            Message: "New device type?",
+            Message: fmt.Sprintf("New device type? (Currently: %s)", e.device.DeviceType.Name),
 			Options: options,
             Default: e.device.DeviceType.Name,
             Help: "Ctrl+C to skip question and leave as current",
             Description: func(value string, index int) string {
                 if value == e.device.DeviceType.Name {
-                    return "Current Value"
+                    return "Current"
                 }
                 return ""
             },
@@ -220,7 +220,7 @@ func (e *editCmd) getDeviceType() error {
     if err != nil {
         if err == terminal.InterruptErr {
             e.params.deviceType = e.device.DeviceType.ID
-            utils.Success("Keeping: %s", e.device.DeviceType.Name)
+            utils.Success("Keeping device type: %s", e.device.DeviceType.Name)
             fmt.Println()
             return nil
         }
@@ -262,7 +262,7 @@ func (e *editCmd) getParentEntity() error {
             // TODO: Fix Description
             Description: func(value string, index int) string {
                 if value == e.device.ParentEntity.GetParentHierachyName() {
-                    return "Current"
+                    return "*"
                 }
                 return ""
             },
@@ -274,7 +274,7 @@ func (e *editCmd) getParentEntity() error {
     if err != nil {
         if err == terminal.InterruptErr {
             e.params.parentEntity = e.device.ParentEntity.ID
-            utils.Success("Keeping: %s", e.device.ParentEntity.GetParentHierachyName())
+            utils.Success("Keeping parent entity: %s", e.device.ParentEntity.GetParentHierachyName())
             fmt.Println()
             return nil
         }
@@ -312,7 +312,7 @@ func (e *editCmd) getDisplayName() error {
     if err != nil {
         if err == terminal.InterruptErr {
             e.params.displayName = e.device.DisplayName
-            utils.Success("Keeping: %s", e.device.DisplayName)
+            utils.Success("Keeping display name: %s", e.device.DisplayName)
             fmt.Println()
             return nil
         }
