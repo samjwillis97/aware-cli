@@ -105,7 +105,9 @@ func (e *editCmd) setDevices() error {
     s := utils.ShowLoading("Fetching Devices...")
     defer s.Stop()
 
-	devices, err := e.client.GetAllDevices(aware.GetAllDevicesOptions{})
+	devices, err := e.client.GetAllDevices(aware.GetAllDevicesOptions{
+        OrganisationID: viper.GetString("organisation"),
+    })
 	if err != nil {
 		return err
 	}

@@ -114,7 +114,9 @@ func parseFlagsAndArgs(cmd *cobra.Command, args []string) *deleteParams {
 }
 
 func (d *deleteCommand) setDevices() error {
-	devices, err := d.client.GetAllDevices(aware.GetAllDevicesOptions{})
+	devices, err := d.client.GetAllDevices(aware.GetAllDevicesOptions{
+        OrganisationID: viper.GetString("organisation"),
+    })
 	if err != nil {
 		return err
 	}

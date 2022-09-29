@@ -76,7 +76,9 @@ func loadDevices() ([]*aware.Device, error) {
 		Debug:    viper.GetBool("debug"),
 	})
 
-	resp, err := client.GetAllDevices(aware.GetAllDevicesOptions{})
+	resp, err := client.GetAllDevices(aware.GetAllDevicesOptions{
+        OrganisationID: viper.GetString("organisation"),
+    })
 	if err != nil {
 		return nil, err
 	}
