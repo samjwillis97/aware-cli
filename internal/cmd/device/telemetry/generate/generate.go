@@ -4,6 +4,7 @@ package generate
 import (
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"ampaware.com/cli/internal/utils"
@@ -109,14 +110,18 @@ func generate(cmd *cobra.Command, args []string) {
 }
 
 func publishParameterValues(client *aware.Client, device *aware.Device) (time.Time, []interface{}) {
+    var wg sync.WaitGroup
 	ts := time.Now()
-	// var publishedValues []interface{}
 	publishedValues := make([]interface{}, 0)
 	for _, parameter := range device.DeviceType.Parameters {
 		value := parameter.GetRandomValue()
 		publishedValues = append(publishedValues, value)
+
+        wg.Add(1)
+
 		go func(parameter aware.DeviceTypeParameter) {
-                utils.ExitIfError(client.PublishTelemetry(
+            defer wg.Done()
+            utils.ExitIfError(client.PublishTelemetry(
                 device.ID,
                 parameter.Name,
                 value,
@@ -124,6 +129,9 @@ func publishParameterValues(client *aware.Client, device *aware.Device) (time.Ti
             ))
         }(parameter)
 	}
+
+    wg.Wait()
+
 	return ts, publishedValues
 }
 
