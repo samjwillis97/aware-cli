@@ -1,0 +1,65 @@
+{
+    "id": "5d1d574439d157849090ea6a",
+    "isActive": true,
+    "isEnabled": true,
+    "isHidden": false,
+    "cloudId": "AMP_HST_H266_Outlet_2_IPB_5d1d574439d157849090ea6a",
+    "deviceType": {
+        "isShared": false,
+        "isActive": true,
+        "isHidden": false,
+        "id": "5cf717e2bec882982729dd8a",
+        "name": "IPB",
+        "kind": "integrated-protection-relay",
+        "description": "Integrated Protection Relay",
+        "scope": "system",
+        "allowedAttributes": [],
+        "parameters": [
+            {
+                "id": "5d1af1d930cbe93bdcba8239",
+                "name": "pilot-forward-resistance",
+                "displayName": "Pilot Forward Resistance",
+                "valueType": "float",
+                "isActive": true,
+                "isPrimary": false,
+                "isAggregatable": false,
+                "display": {
+                    "unit": "ohm",
+                    "scale": 1,
+                    "values": []
+                },
+                "range": {
+                    "min": 0,
+                    "max": 150
+                }
+            }
+        ],
+        "displayGroups": [
+            {
+                "id": "5d3142fb4ed8460012ea2628",
+                "name": "Settings",
+                "type": "list",
+                "displayName": "Settings",
+                "order": 10,
+                "selectedParameters": [
+                    "5d1af1d930cbe93bdcba823b",
+                    "5d1af1d930cbe93bdcba823c",
+                    "5d1af1d930cbe93bdcba823d",
+                    "5d1af1d930cbe93bdcba823e",
+                    "5d1af1d930cbe93bdcba823f",
+                    "5d1af1d930cbe93bdcba8240",
+                    "5d1af1d930cbe93bdcba8251",
+                    "5d1af1d930cbe93bdcba8252"
+                ]
+            }
+        ]
+    },
+    "parentEntity": {
+        "id": "5cf48c71b2f30979bc612292",
+        "name": "Outlet 2",
+        "description": "DL032"
+    },
+    "organisation": "5bff4a241c7bed480ff3e261",
+    "identityHistory": [],
+    "attributes": []
+}

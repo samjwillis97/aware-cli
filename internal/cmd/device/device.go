@@ -21,7 +21,7 @@ func NewCmdDevice() *cobra.Command {
 		RunE:        device,
 	}
 
-    // TODO: Register On Cloud
+	// TODO: Register On Cloud
 	// TODO: Edit
 	// TODO: View
 	// TODO: State?
@@ -34,20 +34,20 @@ func NewCmdDevice() *cobra.Command {
 	lc := list.NewCmdList()
 	cr := create.NewCmdCreate()
 	de := delete.NewCmdDelete()
-    ed := edit.NewCmdEdit()
+	ed := edit.NewCmdEdit()
 
 	cmd.AddCommand(
 		lc,
 		cr,
 		de,
-        ed,
+		ed,
 		telemetry.NewCmdDeviceTelemetry(),
 	)
 
 	list.SetFlags(lc)
 	create.SetFlags(cr)
 	delete.SetFlags(de)
-    edit.SetFlags(ed)
+	edit.SetFlags(ed)
 
 	return &cmd
 }
