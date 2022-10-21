@@ -1,0 +1,27 @@
+name: Release Binaries
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  go-releaser:
+    name: Release Go Binary
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      - name: Download Go Modules
+        run: go mod download
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

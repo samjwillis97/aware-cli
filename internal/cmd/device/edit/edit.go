@@ -28,6 +28,7 @@ type editCmd struct {
 	devices        []*aware.Device
 	deviceTypes    []*aware.DeviceType
 	parentEntities []*aware.Entity
+	organisations  []*aware.Organisation
 }
 
 // NewCmdEdit is the edit device command.
@@ -46,9 +47,10 @@ func NewCmdEdit() *cobra.Command {
 
 // SetFlags set the flags supported by the edit command.
 func SetFlags(cmd *cobra.Command) {
-	cmd.Flags().String("type", "", "Modified Device Type.")
-	cmd.Flags().String("parent", "", "Modified Parent Entity.")
+	cmd.Flags().String("type", "", "Modified Device Type ID.")
+	cmd.Flags().String("parent", "", "Modified Parent Entity ID.")
 	cmd.Flags().String("name", "", "Modified Display Name.")
+	cmd.Flags().String("organisation", "", "Modified Organisation ID.")
 	cmd.Flags().Bool("no-input", false, "Disable prompt for non-required fields")
 }
 
@@ -70,21 +72,49 @@ func edit(cmd *cobra.Command, args []string) {
 		params: params,
 	}
 
-	if edit.params.ID == "" {
-		utils.ExitIfError(edit.setDevices())
-		utils.ExitIfError(edit.getDevice())
-	} else {
+	if params.noInput {
 		utils.ExitIfError(edit.setDevice())
+		if edit.params.deviceType == "" {
+			edit.params.deviceType = edit.device.DeviceType.ID
+		}
+		if edit.params.parentEntity == "" {
+			edit.params.parentEntity = edit.device.ParentEntity.ID
+		}
+		if edit.params.organisation == "" {
+			edit.params.organisation = edit.device.Organisation
+		}
+		if edit.params.displayName == "" {
+			edit.params.displayName = edit.device.DisplayName
+		}
+	} else {
+		if edit.params.ID == "" {
+			utils.ExitIfError(edit.setDevices())
+			utils.ExitIfError(edit.getDevice())
+		} else {
+			utils.ExitIfError(edit.setDevice())
+		}
+
+		if edit.params.deviceType == "" {
+			utils.ExitIfError(edit.setDeviceTypes())
+		}
+		if edit.params.parentEntity == "" {
+			utils.ExitIfError(edit.setParentEntities())
+		}
+		if edit.params.organisation == viper.GetString("organisation") {
+			utils.ExitIfError(edit.setOrganisations())
+		}
+
+		edit.askQuestions()
 	}
 
-	if edit.params.deviceType == "" {
-		utils.ExitIfError(edit.setDeviceTypes())
-	}
-	if edit.params.parentEntity == "" {
-		utils.ExitIfError(edit.setParentEntities())
-	}
+	utils.ExitIfError(edit.client.UpdateDeviceByID(edit.device.ID, &aware.UpdateDeviceRequest{
+		DeviceType:   edit.params.deviceType,
+		ParentEntity: edit.params.parentEntity,
+		Organisation: edit.params.organisation,
+		DisplayName:  edit.params.displayName,
+	}))
 
-	edit.askQuestions()
+	utils.Success("Device Updated")
 }
 
 func (e *editCmd) setDevice() error {
@@ -142,6 +172,19 @@ func (e *editCmd) setParentEntities() error {
 	return nil
 }
 
+func (e *editCmd) setOrganisations() error {
+	s := utils.ShowLoading("Fetching Organisations...")
+	defer s.Stop()
+
+	organisations, err := e.client.GetAllOrganisations()
+	if err != nil {
+		return err
+	}
+
+	e.organisations = organisations
+	return nil
+}
+
 func (e *editCmd) getDevice() error {
 	var ans string
 
@@ -175,16 +218,10 @@ func (e *editCmd) getDevice() error {
 }
 
 func (e *editCmd) askQuestions() {
-	if e.params.noInput {
-		// TODO: Handle This
-		return
-	}
-
+	utils.ExitIfError(e.getOrganisation())
 	utils.ExitIfError(e.getDeviceType())
 	utils.ExitIfError(e.getParentEntity())
 	utils.ExitIfError(e.getDisplayName())
-
-	return
 }
 
 func (e *editCmd) getDeviceType() error {
@@ -202,7 +239,7 @@ func (e *editCmd) getDeviceType() error {
 	qs = &survey.Question{
 		Name: "deviceType",
 		Prompt: &survey.Select{
-			Message: fmt.Sprintf("New device type? (Currently: %s)", e.device.DeviceType.Name),
+			Message: fmt.Sprintf("Change device type? (Currently: %s)", e.device.DeviceType.Name),
 			Options: options,
 			Default: e.device.DeviceType.Name,
 			Help:    "Ctrl+C to skip question and leave as current",
@@ -253,13 +290,10 @@ func (e *editCmd) getParentEntity() error {
 	qs = &survey.Question{
 		Name: "parentEntity",
 		Prompt: &survey.Select{
-			// TODO: Change Message
-			Message: fmt.Sprintf("New parent entity? (Currently: %s)", e.device.ParentEntity.GetParentHierachyName()),
+			Message: fmt.Sprintf("Change parent entity? (Currently: %s)", e.device.ParentEntity.GetParentHierachyName()),
 			Options: options,
-			// TODO: Fix Default
 			Default: e.device.ParentEntity.GetParentHierachyName(),
 			Help:    "Ctrl+C to skip question and leave as current",
-			// TODO: Fix Description
 			Description: func(value string, index int) string {
 				if value == e.device.ParentEntity.GetParentHierachyName() {
 					return "*"
@@ -301,7 +335,7 @@ func (e *editCmd) getDisplayName() error {
 	qs = &survey.Question{
 		Name: "displayName",
 		Prompt: &survey.Input{
-			Message: "New display name?",
+			Message: "Change display name?",
 			Default: e.device.DisplayName,
 			Help:    "Ctrl+C to skip question and leave as current",
 		},
@@ -324,6 +358,60 @@ func (e *editCmd) getDisplayName() error {
 	return nil
 }
 
+func (e *editCmd) getOrganisation() error {
+	var qs *survey.Question
+
+	if e.params.organisation != viper.GetString("organisation") {
+		return nil
+	}
+
+	currentOrganisation := ""
+	options := make([]string, 0)
+	for _, t := range e.organisations {
+		if t.ID == viper.GetString("organisation") {
+			currentOrganisation = t.Name
+		}
+		options = append(options, t.Name)
+	}
+
+	qs = &survey.Question{
+		Name: "organisation",
+		Prompt: &survey.Select{
+			Message: fmt.Sprintf("Move organisation? (Currently: %s)", currentOrganisation),
+			Options: options,
+			Default: currentOrganisation,
+			Help:    "Ctrl+C to skip question and leave as current",
+			Description: func(value string, index int) string {
+				if value == currentOrganisation {
+					return "Current"
+				}
+				return ""
+			},
+		},
+	}
+
+	ans := struct{ Organisation string }{}
+	err := survey.Ask([]*survey.Question{qs}, &ans)
+	if err != nil {
+		if err == terminal.InterruptErr {
+			e.params.organisation = viper.GetString("organisation")
+			utils.Success("Keeping organisation: %s", currentOrganisation)
+			fmt.Println()
+			return nil
+		}
+		return err
+	}
+
+	for _, t := range e.organisations {
+		if t.Name == ans.Organisation {
+			e.params.organisation = t.ID
+			break
+		}
+	}
+
+	return nil
+}
+
 func parseFlagsAndArgs(cmd *cobra.Command, args []string) *editParams {
 	deviceType, err := cmd.Flags().GetString("type")
 	utils.ExitIfError(err)
@@ -334,12 +422,21 @@ func parseFlagsAndArgs(cmd *cobra.Command, args []string) *editParams {
 	displayName, err := cmd.Flags().GetString("name")
 	utils.ExitIfError(err)
 
+	organisation, err := cmd.Flags().GetString("organisation")
+	utils.ExitIfError(err)
+
+	if organisation == "" {
+		organisation = viper.GetString("organisation")
+	}
+
 	noInput, err := cmd.Flags().GetBool("no-input")
 	utils.ExitIfError(err)
 
 	var id string
 	if len(args) >= 1 {
 		id = args[0]
+	} else if noInput {
+		utils.Failed("Cannot use no-input without supplying device ID")
 	}
 
 	return &editParams{
@@ -347,7 +444,7 @@ func parseFlagsAndArgs(cmd *cobra.Command, args []string) *editParams {
 		deviceType:   deviceType,
 		parentEntity: parentEntity,
 		displayName:  displayName,
-		organisation: viper.GetString("organisation"),
+		organisation: organisation,
 		noInput:      noInput,
 	}
 }

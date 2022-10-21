@@ -66,6 +66,14 @@ type CreateDeviceRequest struct {
 	// Credentials
 }
 
+// UpdateDeviceRequest is the data used when updating an existing device.
+type UpdateDeviceRequest struct {
+	DeviceType   string `json:"deviceType"`
+	ParentEntity string `json:"parentEntity"`
+	Organisation string `json:"organisation"`
+	DisplayName  string `json:"displayName"`
+}
+
 // CreateDevice will create a new device with the given request details.
 func (c *Client) CreateDevice(req *CreateDeviceRequest) (*CreatedDevice, error) {
 	header := Header{
@@ -207,4 +215,34 @@ func (c *Client) GetDeviceByID(id string) (*Device, error) {
 	}
 
 	return out, nil
+}
+
+// UpdateDeviceByID updates details of a device on aware.
+func (c *Client) UpdateDeviceByID(id string, req *UpdateDeviceRequest) error {
+	header := Header{
+		"Accept":       "application/json",
+		"Content-Type": "application/json",
+	}
+
+	body, err := json.Marshal(&req)
+	if err != nil {
+		return err
+	}
+
+	res, err := c.request(context.Background(), http.MethodPut, c.server+"/v1/devices/update/"+id, body, header)
+	if err != nil {
+		return err
+	}
+
+	if res == nil {
+		return ErrEmptyResult
+	}
+
+	defer func() { _ = res.Body.Close() }()
+
+	if res.StatusCode != http.StatusNoContent {
+		return formatUnexpectedResponse(res)
+	}
+
+	return nil
 }
