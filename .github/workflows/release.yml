@@ -12,9 +12,12 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v3
         with:
+          cache: true
           go-version: 1.18
       - name: Checkout Code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Download Go Modules
         run: go mod download
       - name: Run GoReleaser
@@ -23,5 +26,6 @@ jobs:
           distribution: goreleaser
           version: latest
           args: release --rm-dist
+          workdir: cmd/aware
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
