@@ -20,7 +20,6 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v3
         with:
-          cache: true
           go-version: ${{ matrix.go-version }}
 
       - name: Checkout code
