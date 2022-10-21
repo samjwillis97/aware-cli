@@ -44,6 +44,7 @@ Requires golangci-lint, install [here](https://golangci-lint.run/usage/install/)
 
 - Bitwarden CLI (https://github.com/bitwarden/clients/tree/master/apps/cli)
 - Jira CLI (https://github.com/ankitpokhrel/jira-cli)
+- Survey V2 
 
 ## Core Libraries
 

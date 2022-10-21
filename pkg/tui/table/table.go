@@ -209,7 +209,6 @@ func New(opts ...Option) Model {
 	// TODO: Add a filter (Optional)
 	// TODO: Better Footers
 	// TODO: Add an option for columns to overflow
-	// TODO: Show help
 	// TODO: Value to Clipboard
 	// TODO: Method to Append for Telemetry Generation!
 	// TODO: Better status of table - to use in footer
