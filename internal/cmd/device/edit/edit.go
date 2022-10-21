@@ -72,24 +72,40 @@ func edit(cmd *cobra.Command, args []string) {
 		params: params,
 	}
 
-	if edit.params.ID == "" {
-		utils.ExitIfError(edit.setDevices())
-		utils.ExitIfError(edit.getDevice())
-	} else {
+	if params.noInput {
 		utils.ExitIfError(edit.setDevice())
-	}
+		if edit.params.deviceType == "" {
+			edit.params.deviceType = edit.device.DeviceType.ID
+		}
+		if edit.params.parentEntity == "" {
+			edit.params.parentEntity = edit.device.ParentEntity.ID
+		}
+		if edit.params.organisation == "" {
+			edit.params.organisation = edit.device.Organisation
+		}
+		if edit.params.displayName == "" {
+			edit.params.displayName = edit.device.DisplayName
+		}
+	} else {
+		if edit.params.ID == "" {
+			utils.ExitIfError(edit.setDevices())
+			utils.ExitIfError(edit.getDevice())
+		} else {
+			utils.ExitIfError(edit.setDevice())
+		}
 
-	if edit.params.deviceType == "" {
-		utils.ExitIfError(edit.setDeviceTypes())
-	}
-	if edit.params.parentEntity == "" {
-		utils.ExitIfError(edit.setParentEntities())
-	}
-	if edit.params.organisation == viper.GetString("organisation") {
-		utils.ExitIfError(edit.setOrganisations())
-	}
+		if edit.params.deviceType == "" {
+			utils.ExitIfError(edit.setDeviceTypes())
+		}
+		if edit.params.parentEntity == "" {
+			utils.ExitIfError(edit.setParentEntities())
+		}
+		if edit.params.organisation == viper.GetString("organisation") {
+			utils.ExitIfError(edit.setOrganisations())
+		}
 
-	edit.askQuestions()
+		edit.askQuestions()
+	}
 
 	utils.ExitIfError(edit.client.UpdateDeviceByID(edit.device.ID, &aware.UpdateDeviceRequest{
 		DeviceType:   edit.params.deviceType,
@@ -202,16 +218,10 @@ func (e *editCmd) getDevice() error {
 }
 
 func (e *editCmd) askQuestions() {
-	if e.params.noInput {
-		// TODO: Handle This
-		return
-	}
-
 	utils.ExitIfError(e.getOrganisation())
 	utils.ExitIfError(e.getDeviceType())
 	utils.ExitIfError(e.getParentEntity())
 	utils.ExitIfError(e.getDisplayName())
-	// TODO: New Organisation?
 }
 
 func (e *editCmd) getDeviceType() error {
@@ -280,13 +290,10 @@ func (e *editCmd) getParentEntity() error {
 	qs = &survey.Question{
 		Name: "parentEntity",
 		Prompt: &survey.Select{
-			// TODO: Change Message
 			Message: fmt.Sprintf("Change parent entity? (Currently: %s)", e.device.ParentEntity.GetParentHierachyName()),
 			Options: options,
-			// TODO: Fix Default
 			Default: e.device.ParentEntity.GetParentHierachyName(),
 			Help:    "Ctrl+C to skip question and leave as current",
-			// TODO: Fix Description
 			Description: func(value string, index int) string {
 				if value == e.device.ParentEntity.GetParentHierachyName() {
 					return "*"
@@ -428,6 +435,8 @@ func parseFlagsAndArgs(cmd *cobra.Command, args []string) *editParams {
 	var id string
 	if len(args) >= 1 {
 		id = args[0]
+	} else if noInput {
+		utils.Failed("Cannot use no-input without supplying device ID")
 	}
 
 	return &editParams{
