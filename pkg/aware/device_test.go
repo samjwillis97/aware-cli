@@ -109,3 +109,8 @@ func TestGetDeviceByID(t *testing.T) {
 		Status:     "400 Bad Request",
 	})
 }
+
+// TODO: Add Tests For:
+// Create
+// Delete
+// Get All
