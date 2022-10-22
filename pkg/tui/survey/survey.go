@@ -7,13 +7,16 @@ import (
 type Model struct {
 	questions []*Question
 	index     int
-	results   []interface{}
+	response  *interface{}
+	options   PromptConfig
 }
 
 type Option func(*Model)
 
 func New(opts ...Option) Model {
 	m := Model{}
+
+	m.options = defaultAskOptions()
 
 	for _, opt := range opts {
 		opt(&m)
@@ -41,5 +44,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	if m.index < len(m.questions) {
+		return m.questions[m.index].Prompt.Ask(&m)
+	}
 	return "Test"
 }

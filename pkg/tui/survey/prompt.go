@@ -1,5 +1,7 @@
 package survey
 
+import "strings"
+
 // Icon holds the text and format to show for a particular icon
 type Icon struct {
 	Text   string
@@ -49,10 +51,52 @@ type PromptConfig struct {
 	RemoveSelectNone bool
 }
 
+func defaultAskOptions() PromptConfig {
+	return PromptConfig{
+		PageSize:     7,
+		HelpInput:    "?",
+		SuggestInput: "tab",
+		Icons: IconSet{
+			Error: Icon{
+				Text:   "X",
+				Format: "red",
+			},
+			Help: Icon{
+				Text:   "?",
+				Format: "cyan",
+			},
+			Question: Icon{
+				Text:   "?",
+				Format: "green+hb",
+			},
+			MarkedOption: Icon{
+				Text:   "[x]",
+				Format: "green",
+			},
+			UnmarkedOption: Icon{
+				Text:   "[ ]",
+				Format: "default+hb",
+			},
+			SelectFocus: Icon{
+				Text:   ">",
+				Format: "cyan+b",
+			},
+		},
+		Filter: func(filter string, value string, index int) (include bool) {
+			filter = strings.ToLower(filter)
+
+			// include this option if it matches
+			return strings.Contains(strings.ToLower(value), filter)
+		},
+		KeepFilter:       false,
+		ShowCursor:       false,
+		RemoveSelectAll:  false,
+		RemoveSelectNone: false,
+	}
+}
+
 // Prompt is the primary interface for the objects that can take user input
 // and return a response.
 type Prompt interface {
-	Prompt(config *PromptConfig) (interface{}, error) // TODO: Implement
-	Cleanup(*PromptConfig, interface{}) error         // TODO: Implement
-	Error(*PromptConfig, error) error                 // TODO: Implemenet
+	Ask(*Model) string
 }
