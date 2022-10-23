@@ -179,8 +179,7 @@ func (k KeyMap) FullHelp() [][]key.Binding {
 func DefaultStyles() Styles {
 	return Styles{
 		Selected: lipgloss.NewStyle().
-			Bold(false).
-			Foreground(lipgloss.Color("229")).
+			Bold(false).Foreground(lipgloss.Color("229")).
 			Background(lipgloss.Color("57")),
 		Header: lipgloss.NewStyle().
 			Padding(0, 1).
@@ -621,15 +620,12 @@ func (m *Model) renderRow(rowID int) string {
 
 	row := lipgloss.JoinHorizontal(lipgloss.Left, s...)
 
-	if _, ok := m.rowsToReRender[rowID]; ok {
-		delete(m.rowsToReRender, rowID)
-	}
-
 	if rowID == m.cursor {
 		m.rowsToReRender[rowID] = struct{}{}
 		return m.styles.Selected.Render(row)
 	}
 
+	delete(m.rowsToReRender, rowID)
 	return row
 }
 
