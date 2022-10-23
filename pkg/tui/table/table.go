@@ -32,6 +32,10 @@ type Model struct {
 	helpEnabled  bool
 	help         help.Model
 
+	renderAllRows  bool
+	renderedRows   []string
+	rowsToReRender map[int]struct{}
+
 	refreshFunc func() ([]Column, []Row)
 	copyIndex   int
 
@@ -225,6 +229,10 @@ func New(opts ...Option) Model {
 
 		KeyMap: DefaultKeyMap(),
 		styles: DefaultStyles(),
+
+		renderAllRows:  true,
+		rowsToReRender: make(map[int]struct{}),
+		renderedRows:   make([]string, 0),
 	}
 
 	for _, opt := range opts {
@@ -350,20 +358,30 @@ func (m Model) View() string {
 func (m *Model) UpdateViewport() {
 	m.UpdateColumnWidths()
 
-	// TODO: Stick Cursor
 	m.stickCursor()
 	stickCursorToBottom := m.stickyCursor && (m.cursor == len(m.rows)-2)
 	if stickCursorToBottom {
 		m.cursor = len(m.rows) - 1
 	}
 
-	renderedRows := make([]string, 0, len(m.rows))
-	for i := range m.rows {
-		renderedRows = append(renderedRows, m.renderRow(i))
+	// Always re-render where the cursors currently is, this will ensure it is highlighted
+	m.rowsToReRender[m.cursor] = struct{}{}
+
+	if m.renderAllRows {
+		renderedRows := make([]string, 0, len(m.rows))
+		for i := range m.rows {
+			renderedRows = append(renderedRows, m.renderRow(i))
+		}
+		m.renderedRows = renderedRows
+		m.renderAllRows = false
+	} else {
+		for i := range m.rowsToReRender {
+			m.renderedRows[i] = m.renderRow(i)
+		}
 	}
 
 	m.viewport.SetContent(
-		lipgloss.JoinVertical(lipgloss.Left, renderedRows...),
+		lipgloss.JoinVertical(lipgloss.Left, m.renderedRows...),
 	)
 
 	if stickCursorToBottom {
@@ -389,6 +407,7 @@ func (m *Model) SetRows(r []Row) {
 // SetWidth sets the width of the viewport of the table.
 func (m *Model) SetWidth(w int) {
 	m.viewport.Width = w
+	m.renderAllRows = true
 	m.UpdateViewport()
 }
 
@@ -440,6 +459,7 @@ func (m *Model) Refresh() {
 // the existing data.
 func (m *Model) AppendRow() {
 	m.rows = append(m.rows, *m.appendRow)
+	m.renderedRows = append(m.renderedRows, m.renderRow(len(m.rows)-1))
 	m.UpdateViewport()
 }
 
@@ -586,11 +606,9 @@ func (m Model) headersView() string {
 }
 
 func (m Model) footersView() string {
-	// TODO: Put line above this
 	style := lipgloss.NewStyle().Width(m.viewport.Width).MaxWidth(m.viewport.Width)
 	rendered := style.Render(fmt.Sprintf("Showing %d entries", len(m.rows)))
 	return m.styles.Footer.Render(rendered)
-	// return fmt.Sprintf("Showing %d entries", len(m.rows))
 }
 
 func (m *Model) renderRow(rowID int) string {
@@ -603,7 +621,12 @@ func (m *Model) renderRow(rowID int) string {
 
 	row := lipgloss.JoinHorizontal(lipgloss.Left, s...)
 
+	if _, ok := m.rowsToReRender[rowID]; ok {
+		delete(m.rowsToReRender, rowID)
+	}
+
 	if rowID == m.cursor {
+		m.rowsToReRender[rowID] = struct{}{}
 		return m.styles.Selected.Render(row)
 	}
 
