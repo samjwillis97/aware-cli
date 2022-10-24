@@ -1,6 +1,7 @@
 package form
 
 type Section struct {
+	Name   string
 	Fields []*Field
 }
 

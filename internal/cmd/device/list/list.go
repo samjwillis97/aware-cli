@@ -54,9 +54,7 @@ func loadList(cmd *cobra.Command) {
 	utils.ExitIfError(err)
 
 	v := view.DeviceList{
-		Total:  total,
-		Server: viper.GetString("server"),
-		Data:   devices,
+		Data: devices,
 		Display: view.DeviceDisplayFormat{
 			Plain:      plain,
 			NoHeaders:  noHeaders,

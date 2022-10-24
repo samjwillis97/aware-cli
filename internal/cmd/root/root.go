@@ -102,6 +102,7 @@ func NewCmdRoot() *cobra.Command {
 
 func addChildCommands(cmd *cobra.Command) {
 	// TODO: Switch Organisation
+	// TODO: Automatic re-auth
 	cmd.AddCommand(
 		initCmd.NewCmdInit(),
 		device.NewCmdDevice(),

@@ -26,9 +26,11 @@ type KeyMap struct {
 }
 
 type Styles struct {
-	FieldText lipgloss.Style
-	ValueText lipgloss.Style
-	Heading   lipgloss.Style
+	SectionHeader  lipgloss.Style
+	FieldText      lipgloss.Style
+	ValueText      lipgloss.Style
+	HighlightedRow lipgloss.Style
+	Heading        lipgloss.Style
 }
 
 type Option func(*Model)

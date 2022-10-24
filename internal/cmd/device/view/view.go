@@ -4,10 +4,9 @@ import (
 	"fmt"
 
 	"ampaware.com/cli/internal/utils"
+	iview "ampaware.com/cli/internal/view"
 	"ampaware.com/cli/pkg/aware"
-	"ampaware.com/cli/pkg/tui/form"
 	"github.com/AlecAivazis/survey/v2"
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -68,33 +67,16 @@ func view(cmd *cobra.Command, args []string) {
 		utils.ExitIfError(view.setDevice())
 	}
 
-	fields := make([]*form.Field, 0)
-	sections := make([]form.Section, 0)
-
-	fields = append(fields, &form.Field{
-		Name:  "Name",
-		Value: view.device.DisplayName,
-	})
-	fields = append(fields, &form.Field{
-		Name:  "Device Type",
-		Value: view.device.DeviceType.Name,
-	})
-
-	sections = append(sections, form.Section{
-		Fields: fields,
-	})
-
 	// TODO: Replace this with the view
-	f := form.New(
-		form.WithSections(
-			sections,
-		),
-	)
-	p := tea.NewProgram(f)
-
-	if err := p.Start(); err != nil {
-		utils.Failed("Error has occurred: %v", err)
+	v := iview.DeviceView{
+		Data: view.device,
+		Display: iview.DeviceViewDisplayFormat{
+			Plain:            false,
+			ExcludedSections: make(map[string]struct{}),
+		},
 	}
+
+	v.Render()
 }
 
 func (v *viewCmd) setDevices() error {
